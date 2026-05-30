@@ -1,0 +1,121 @@
+-- =====================
+-- FPS Locker + Mini Stats HUD
+-- =====================
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Stats = game:GetService("Stats")
+
+local player = Players.LocalPlayer
+local startTime = tick()
+
+-- LOCK FPS 30
+if setfpscap then
+    setfpscap(30)
+else
+    local lastTick = tick()
+    local targetFrameTime = 1 / 30
+    RunService.RenderStepped:Connect(function()
+        local now = tick()
+        local delta = now - lastTick
+        if delta < targetFrameTime then
+            task.wait(targetFrameTime - delta)
+        end
+        lastTick = tick()
+    end)
+end
+
+-- MINI STATS HUD
+if player.PlayerGui:FindFirstChild("MiniStats") then
+    player.PlayerGui.MiniStats:Destroy()
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "MiniStats"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local bg = Instance.new("Frame")
+bg.Size = UDim2.new(0, 210, 0, 130)
+bg.Position = UDim2.new(0, 8, 0.12, 0)
+bg.BackgroundColor3 = Color3.fromRGB(15, 12, 10)
+bg.BackgroundTransparency = 0.3
+bg.BorderSizePixel = 0
+bg.Parent = gui
+
+local c = Instance.new("UICorner")
+c.CornerRadius = UDim.new(0, 10)
+c.Parent = bg
+
+local s = Instance.new("UIStroke")
+s.Color = Color3.fromRGB(255, 200, 60)
+s.Thickness = 1.2
+s.Transparency = 0.4
+s.Parent = bg
+
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(1, -12, 1, -8)
+label.Position = UDim2.new(0, 8, 0, 4)
+label.BackgroundTransparency = 1
+label.TextXAlignment = Enum.TextXAlignment.Left
+label.TextYAlignment = Enum.TextYAlignment.Top
+label.TextSize = 22
+label.Font = Enum.Font.GothamBold
+label.RichText = true
+label.Parent = bg
+
+local pingSamples, fpsSamples = {}, {}
+
+local function smooth(tbl, val)
+    table.insert(tbl, val)
+    if #tbl > 10 then table.remove(tbl, 1) end
+    local total = 0
+    for _, v in ipairs(tbl) do total += v end
+    return math.floor(total / #tbl)
+end
+
+local function rainbowColor()
+    local t = tick() * 2
+    return string.format("rgb(%d,%d,%d)",
+        math.floor(math.sin(t)     * 127 + 128),
+        math.floor(math.sin(t + 2) * 127 + 128),
+        math.floor(math.sin(t + 4) * 127 + 128)
+    )
+end
+
+local connection
+connection = RunService.RenderStepped:Connect(function(dt)
+    if not player or not player.Parent then
+        connection:Disconnect()
+        return
+    end
+
+    local fps = smooth(fpsSamples, dt > 0 and math.floor(1 / dt) or 0)
+    local ping = 0
+    pcall(function()
+        ping = smooth(pingSamples, Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+    end)
+
+    local playersCount = #Players:GetPlayers()
+    local elapsed = math.floor(tick() - startTime)
+    local h = math.floor(elapsed / 3600)
+    local m = math.floor((elapsed % 3600) / 60)
+    local s = elapsed % 60
+    local color = rainbowColor()
+
+    local fpsColor  = fps  < 20  and "rgb(255,80,80)"  or fps  < 25 and "rgb(255,180,60)" or color
+    local pingColor = ping > 200 and "rgb(255,80,80)"  or ping > 100 and "rgb(255,180,60)" or color
+
+    label.Text = string.format(
+        "<b><font color='%s'>⚡ FPS: %d</font></b>\n"      ..
+        "<b><font color='%s'>👥 Players: %d</font></b>\n"  ..
+        "<b><font color='%s'>📶 Ping: %d ms</font></b>\n"  ..
+        "<b><font color='%s'>⏱ %02d:%02d:%02d</font></b>",
+        fpsColor,  fps,
+        color,     playersCount,
+        pingColor, ping,
+        color,     h, m, s
+    )
+end)
+
+print("✅ Mini Stats HUD active")
