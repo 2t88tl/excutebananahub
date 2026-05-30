@@ -1,0 +1,1590 @@
+-- =====================
+-- BANANA CAT HUB - Final Version
+-- =====================
+
+local Players          = game:GetService("Players")
+local TweenService     = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService       = game:GetService("RunService")
+local TeleportService  = game:GetService("TeleportService")
+local HttpService      = game:GetService("HttpService")
+local Stats            = game:GetService("Stats")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui   = LocalPlayer:WaitForChild("PlayerGui")
+
+-- =====================
+-- CONFIG
+-- =====================
+local AUTO_EXEC_DURATION = 3600
+local AUTO_EXEC_INTERVAL = 30
+local STATE_FILE         = "BCH_state.json"
+local FPS_CAP            = 30
+
+-- =====================
+-- COLORS
+-- =====================
+local C = {
+    BG        = Color3.fromRGB(22, 18, 14),
+    PANEL     = Color3.fromRGB(38, 30, 20),
+    ACCENT    = Color3.fromRGB(255, 200, 60),
+    ACCENT2   = Color3.fromRGB(255, 140, 40),
+    BTN       = Color3.fromRGB(50, 40, 28),
+    BTN_HOVER = Color3.fromRGB(72, 58, 36),
+    TEXT      = Color3.fromRGB(255, 240, 200),
+    TEXT_SUB  = Color3.fromRGB(180, 160, 110),
+    GREEN     = Color3.fromRGB(80, 220, 100),
+    RED       = Color3.fromRGB(220, 80, 60),
+    CLOSE     = Color3.fromRGB(200, 65, 50),
+}
+
+-- =====================
+-- SCRIPTS
+-- =====================
+local SCRIPTS = {
+    ["Banana Hub"] = [[
+        repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+        getgenv().Key = "4b762e8f5b1a50786aee5b6e"
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaHub.lua"))()
+    ]],
+    ["Kaitun Banana"] = [[
+repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+getgenv().Key = "4b762e8f5b1a50786aee5b6e"
+getgenv().SettingFarm ={
+    ["Hide UI"] = false,
+    ["Reset Teleport"] = {
+        ["Enabled"] = false,
+        ["Delay Reset"] = 3,
+        ["Item Dont Reset"] = {
+            ["Fruit"] = {
+                ["Enabled"] = true,
+                ["All Fruit"] = true, 
+                ["Select Fruit"] = {
+                    ["Enabled"] = false,
+                    ["Fruit"] = {},
+                },
+            },
+        },
+    },
+    ["White Screen"] = false,
+    ["Lock Fps"] = {
+        ["Enabled"] = false,
+        ["FPS"] = 20,
+    },
+    ["Get Items"] = {
+        ["Saber"] = true,
+        ["Godhuman"] =  true,
+        ["Skull Guitar"] = true,
+        ["Mirror Fractal"] = true,
+        ["Cursed Dual Katana"] = true,
+        ["Upgrade Race V2-V3"] = true,
+        ["Auto Pull Lever"] = true,
+        ["Shark Anchor"] = true, --- if have cdk,sg,godhuman
+    },
+    ["Get Rare Items"] = {
+        ["Rengoku"] = false,
+        ["Dragon Trident"] = false, 
+        ["Pole (1st Form)"] = false,
+        ["Gravity Blade"]  = false,
+    },
+    ["Farm Fragments"] = {
+        ["Enabled"]  = false,
+        ["Fragment"] = 50000,
+    },
+    ["Auto Chat"] = {
+        ["Enabled"] = false,
+        ["Text"] = "",
+    },
+    ["Auto Summon Rip Indra"] = true, --- auto buy haki and craft haki legendary 
+    ["Select Hop"] = { -- 70% will have it
+        ["Hop Server If Have Player Near"] = false, 
+        ["Hop Find Rip Indra Get Valkyrie Helm or Get Tushita"] = true, 
+        ["Hop Find Dough King Get Mirror Fractal"] = false,
+        ["Hop Find Raids Castle [CDK]"] = true,
+        ["Hop Find Cake Queen [CDK]"] = true,
+        ["Hop Find Soul Reaper [CDK]"] = true,
+        ["Hop Find Darkbeard [SG]"] = true,
+        ["Hop Find Mirage [ Pull Lever ]"] = false,
+    },
+    ["Farm Mastery"] = {
+        ["Melee"] = false,
+        ["Sword"] = false,
+    },
+    ["Buy Haki"] = {
+        ["Enhancement"] = true,
+        ["Skyjump"] = true,
+        ["Flash Step"] = true,
+        ["Observation"] = true,
+    },
+    ["Sniper Fruit Shop"] = {
+        ["Enabled"] = true, -- Auto Buy Fruit in Shop Mirage and Normal
+        ["Fruit"] = {"Leopard-Leopard","Kitsune-Kitsune","Dragon-Dragon","Yeti-Yeti","Gas-Gas"},
+    },
+    ["Lock Fruit"] = {},
+    ["Webhook"] = {
+        ["Enabled"] = true,
+        ["WebhookUrl"] = "https://discord.com/api/webhooks/1470620158518099990/L_u1KQfvo8eOZpmRNSyOFP9L1Q0zl-Kq1L8PlJsMFVfHjIfh6pyDM9OrHSNNehVgUgQd",
+    }
+}
+loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()    ]],
+    ["Kaitun Bounty"] = [[
+        repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+        getgenv().Key = "4b762e8f5b1a50786aee5b6e"
+        getgenv().config = {
+            team = "Pirates",
+            hpTimeout = 15,
+            targetTimeout = 20,
+            lowHealth = 4000,
+            safeHealth = 4500,
+            blackScreen = false,
+            useSkill = false,
+            equipPaleScarf = false,
+            webhookurl = "https://discord.com/api/webhooks/1470620158518099990/L_u1KQfvo8eOZpmRNSyOFP9L1Q0zl-Kq1L8PlJsMFVfHjIfh6pyDM9OrHSNNehVgUgQd",
+            webhookEnable = true,
+            webhookSendMinutes = 5,
+            attackSpeed = 0.001,
+            mode = 1,
+            sea = 3,
+            region = "Singapore",
+            trans = false,
+            bltween = true,
+            bpsit = true,
+        }
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/refs/heads/main/Bountynew.lua"))()
+    ]],
+}
+
+-- =====================
+-- FPS LOCK
+-- =====================
+if setfpscap then
+    setfpscap(FPS_CAP)
+else
+    local last  = tick()
+    local frame = 1 / FPS_CAP
+    RunService.RenderStepped:Connect(function()
+        local now = tick()
+        if now - last < frame then task.wait(frame - (now - last)) end
+        last = tick()
+    end)
+end
+
+-- =====================
+-- STATE FILE
+-- =====================
+local function saveState(state)
+    pcall(function()
+        writefile(STATE_FILE, HttpService:JSONEncode(state))
+    end)
+end
+
+local function loadState()
+    local ok, raw = pcall(readfile, STATE_FILE)
+    if not ok or not raw or raw == "" then return {} end
+    local ok2, data = pcall(function() return HttpService:JSONDecode(raw) end)
+    return ok2 and data or {}
+end
+
+local function clearState(name)
+    local s = loadState()
+    s[name] = nil
+    saveState(s)
+end
+
+local function updateState(name, endTime)
+    local s = loadState()
+    s[name] = {endTime = endTime}
+    saveState(s)
+end
+
+-- =====================
+-- CLEANUP OLD GUI
+-- =====================
+if PlayerGui:FindFirstChild("BananaCatHub") then
+    PlayerGui.BananaCatHub:Destroy()
+end
+
+-- =====================
+-- HELPERS
+-- =====================
+local function tw(obj, props, t, style, dir)
+    TweenService:Create(obj,
+        TweenInfo.new(t or 0.3, style or Enum.EasingStyle.Quart, dir or Enum.EasingDirection.Out),
+        props):Play()
+end
+
+local function corner(p, r)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, r or 10)
+    c.Parent = p
+end
+
+local function stroke(p, col, thick)
+    local s = Instance.new("UIStroke")
+    s.Color = col or C.ACCENT
+    s.Thickness = thick or 1.2
+    s.Transparency = 0.4
+    s.Parent = p
+end
+
+local function formatTime(s)
+    return string.format("%02d:%02d", math.floor(s / 60), s % 60)
+end
+
+-- =====================
+-- SCREEN GUI
+-- =====================
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "BananaCatHub"
+Gui.ResetOnSpawn = false
+Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Gui.IgnoreGuiInset = true
+Gui.Parent = PlayerGui
+
+-- =====================
+-- EXECUTE BUTTON
+-- =====================
+local ExecBtn = Instance.new("TextButton")
+ExecBtn.Size = UDim2.new(0, 112, 0, 36)
+ExecBtn.Position = UDim2.new(1, -122, 1, -50)
+ExecBtn.BackgroundColor3 = C.ACCENT
+ExecBtn.Text = "🍌 Execute"
+ExecBtn.TextColor3 = Color3.fromRGB(28, 18, 4)
+ExecBtn.TextSize = 14
+ExecBtn.Font = Enum.Font.GothamBold
+ExecBtn.BorderSizePixel = 0
+ExecBtn.ZIndex = 20
+ExecBtn.Parent = Gui
+corner(ExecBtn, 18)
+stroke(ExecBtn, Color3.fromRGB(255, 225, 110), 2)
+
+ExecBtn.MouseEnter:Connect(function()
+    tw(ExecBtn, {BackgroundColor3 = Color3.fromRGB(255, 218, 70), Size = UDim2.new(0, 118, 0, 38)}, 0.12)
+end)
+ExecBtn.MouseLeave:Connect(function()
+    tw(ExecBtn, {BackgroundColor3 = C.ACCENT, Size = UDim2.new(0, 112, 0, 36)}, 0.12)
+end)
+
+-- =====================
+-- MAIN FRAME
+-- =====================
+local FRAME_W = 288
+local FRAME_H = 430
+
+local Main = Instance.new("Frame")
+Main.Name = "Main"
+Main.Size = UDim2.new(0, FRAME_W, 0, 0)
+Main.Position = UDim2.new(1, -(FRAME_W + 10), 1, -56)
+Main.AnchorPoint = Vector2.new(0, 1)
+Main.BackgroundColor3 = C.BG
+Main.BorderSizePixel = 0
+Main.ClipsDescendants = true
+Main.ZIndex = 10
+Main.Visible = false
+Main.Parent = Gui
+corner(Main, 16)
+stroke(Main, C.ACCENT, 1.5)
+
+-- Top accent bar
+local Bar = Instance.new("Frame")
+Bar.Size = UDim2.new(1, 0, 0, 3)
+Bar.BackgroundColor3 = C.ACCENT
+Bar.BorderSizePixel = 0
+Bar.ZIndex = 11
+Bar.Parent = Main
+do
+    local g = Instance.new("UIGradient")
+    g.Color = ColorSequence.new(C.ACCENT, C.ACCENT2)
+    g.Rotation = 0
+    g.Parent = Bar
+end
+
+-- Header
+local Header = Instance.new("Frame")
+Header.Size = UDim2.new(1, 0, 0, 54)
+Header.Position = UDim2.new(0, 0, 0, 3)
+Header.BackgroundColor3 = C.PANEL
+Header.BorderSizePixel = 0
+Header.ZIndex = 11
+Header.Parent = Main
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -50, 0, 24)
+Title.Position = UDim2.new(0, 14, 0, 8)
+Title.BackgroundTransparency = 1
+Title.Text = "🍌 Banana Cat Hub"
+Title.TextColor3 = C.ACCENT
+Title.TextSize = 15
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.ZIndex = 12
+Title.Parent = Header
+
+local Sub = Instance.new("TextLabel")
+Sub.Size = UDim2.new(1, -50, 0, 14)
+Sub.Position = UDim2.new(0, 14, 0, 34)
+Sub.BackgroundTransparency = 1
+Sub.Text = "Blox Fruits  •  Auto Farm  •  FPS: " .. FPS_CAP
+Sub.TextColor3 = C.TEXT_SUB
+Sub.TextSize = 10
+Sub.Font = Enum.Font.Gotham
+Sub.TextXAlignment = Enum.TextXAlignment.Left
+Sub.ZIndex = 12
+Sub.Parent = Header
+
+-- Close button
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 26, 0, 26)
+CloseBtn.Position = UDim2.new(1, -36, 0, 14)
+CloseBtn.BackgroundColor3 = C.CLOSE
+CloseBtn.Text = "✕"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.TextSize = 12
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.BorderSizePixel = 0
+CloseBtn.ZIndex = 13
+CloseBtn.Parent = Main
+corner(CloseBtn, 7)
+
+CloseBtn.MouseEnter:Connect(function() tw(CloseBtn, {BackgroundColor3 = Color3.fromRGB(255, 90, 70)}, 0.12) end)
+CloseBtn.MouseLeave:Connect(function() tw(CloseBtn, {BackgroundColor3 = C.CLOSE}, 0.12) end)
+
+-- Divider 1
+local Div1 = Instance.new("Frame")
+Div1.Size = UDim2.new(1, -24, 0, 1)
+Div1.Position = UDim2.new(0, 12, 0, 60)
+Div1.BackgroundColor3 = C.ACCENT
+Div1.BackgroundTransparency = 0.75
+Div1.BorderSizePixel = 0
+Div1.ZIndex = 11
+Div1.Parent = Main
+
+-- =====================
+-- SCRIPT BUTTONS AREA (3 buttons)
+-- =====================
+local BtnArea = Instance.new("Frame")
+BtnArea.Size = UDim2.new(1, -24, 0, 196)
+BtnArea.Position = UDim2.new(0, 12, 0, 68)
+BtnArea.BackgroundTransparency = 1
+BtnArea.ZIndex = 11
+BtnArea.Parent = Main
+
+local BtnList = Instance.new("UIListLayout")
+BtnList.Padding = UDim.new(0, 8)
+BtnList.SortOrder = Enum.SortOrder.LayoutOrder
+BtnList.Parent = BtnArea
+
+-- Divider 2
+local Div2 = Instance.new("Frame")
+Div2.Size = UDim2.new(1, -24, 0, 1)
+Div2.Position = UDim2.new(0, 12, 0, 272)
+Div2.BackgroundColor3 = C.ACCENT
+Div2.BackgroundTransparency = 0.75
+Div2.BorderSizePixel = 0
+Div2.ZIndex = 11
+Div2.Parent = Main
+
+-- =====================
+-- MINI STATS
+-- =====================
+local StatsFrame = Instance.new("Frame")
+StatsFrame.Size = UDim2.new(1, -24, 0, 80)
+StatsFrame.Position = UDim2.new(0, 12, 0, 280)
+StatsFrame.BackgroundColor3 = C.PANEL
+StatsFrame.BorderSizePixel = 0
+StatsFrame.ZIndex = 11
+StatsFrame.Parent = Main
+corner(StatsFrame, 8)
+stroke(StatsFrame, C.ACCENT, 1)
+
+local StatsLabel = Instance.new("TextLabel")
+StatsLabel.Size = UDim2.new(1, -16, 1, -10)
+StatsLabel.Position = UDim2.new(0, 10, 0, 5)
+StatsLabel.BackgroundTransparency = 1
+StatsLabel.TextXAlignment = Enum.TextXAlignment.Left
+StatsLabel.TextYAlignment = Enum.TextYAlignment.Top
+StatsLabel.TextSize = 15
+StatsLabel.Font = Enum.Font.GothamBold
+StatsLabel.RichText = true
+StatsLabel.ZIndex = 12
+StatsLabel.Parent = StatsFrame
+
+-- Timer label
+local TimerLabel = Instance.new("TextLabel")
+TimerLabel.Size = UDim2.new(1, -24, 0, 18)
+TimerLabel.Position = UDim2.new(0, 12, 0, 368)
+TimerLabel.BackgroundTransparency = 1
+TimerLabel.Text = ""
+TimerLabel.TextColor3 = C.TEXT_SUB
+TimerLabel.TextSize = 11
+TimerLabel.Font = Enum.Font.Gotham
+TimerLabel.TextXAlignment = Enum.TextXAlignment.Center
+TimerLabel.ZIndex = 11
+TimerLabel.Parent = Main
+
+-- Reconnect label
+local ReconLabel = Instance.new("TextLabel")
+ReconLabel.Size = UDim2.new(1, -24, 0, 16)
+ReconLabel.Position = UDim2.new(0, 12, 0, 388)
+ReconLabel.BackgroundTransparency = 1
+ReconLabel.Text = "🔄 Auto Reconnect: ON"
+ReconLabel.TextColor3 = C.GREEN
+ReconLabel.TextSize = 11
+ReconLabel.Font = Enum.Font.Gotham
+ReconLabel.TextXAlignment = Enum.TextXAlignment.Center
+ReconLabel.ZIndex = 11
+ReconLabel.Parent = Main
+
+-- =====================
+-- AUTO EXEC ENGINE
+-- =====================
+local activeTimers = {}
+local activeConns  = {}
+local btnDataMap   = {}
+
+local function stopScript(name)
+    if activeTimers[name] then
+        task.cancel(activeTimers[name])
+        activeTimers[name] = nil
+    end
+    if activeConns[name] then
+        activeConns[name]:Disconnect()
+        activeConns[name] = nil
+    end
+    clearState(name)
+end
+
+local function startCountdown(name, endTime)
+    if activeConns[name] then activeConns[name]:Disconnect() end
+    activeConns[name] = RunService.Heartbeat:Connect(function()
+        local rem = endTime - os.time()
+        local bd  = btnDataMap[name]
+        if rem <= 0 then
+            TimerLabel.Text = "⏹ " .. name .. " ended"
+            activeConns[name]:Disconnect()
+            activeConns[name] = nil
+            if bd then
+                bd.status.Text      = "⏹ Stopped (1h)"
+                bd.status.TextColor3 = C.TEXT_SUB
+            end
+        else
+            TimerLabel.Text = "⏱ " .. name .. " → " .. formatTime(rem)
+        end
+    end)
+end
+
+local function execScript(name)
+    local code = SCRIPTS[name]
+    if not code then return false end
+    local ok, err = pcall(function() loadstring(code)() end)
+    if not ok then warn("BCH [" .. name .. "]: " .. tostring(err)) end
+    return ok
+end
+
+local function startScript(name, endTime)
+    stopScript(name)
+    endTime = endTime or (os.time() + AUTO_EXEC_DURATION)
+    updateState(name, endTime)
+
+    local bd = btnDataMap[name]
+    if bd then
+        bd.status.Text       = "⟳ Loading..."
+        bd.status.TextColor3 = C.ACCENT
+    end
+
+    task.spawn(function()
+        local ok = execScript(name)
+        if bd then
+            bd.status.Text       = ok and "✓ Running" or "✗ Error"
+            bd.status.TextColor3 = ok and C.GREEN or C.RED
+        end
+    end)
+
+    startCountdown(name, endTime)
+
+    activeTimers[name] = task.spawn(function()
+        while true do
+            task.wait(AUTO_EXEC_INTERVAL)
+            local state = loadState()
+            local info  = state[name]
+            if not info or os.time() >= info.endTime then
+                clearState(name)
+                if bd then
+                    bd.status.Text       = "⏹ Stopped (1h)"
+                    bd.status.TextColor3 = C.TEXT_SUB
+                end
+                TimerLabel.Text = "⏹ " .. name .. " ended"
+                break
+            end
+            task.spawn(function() execScript(name) end)
+        end
+        activeTimers[name] = nil
+    end)
+end
+
+-- =====================
+-- SCRIPT BUTTON FACTORY
+-- =====================
+local ICONS = {
+    ["Banana Hub"]    = "🍌",
+    ["Kaitun Banana"] = "🐱",
+    ["Kaitun Bounty"] = "⚔️",
+}
+
+local function makeScriptBtn(name, order)
+    local icon = ICONS[name] or "▶"
+
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(1, 0, 0, 54)
+    Frame.BackgroundColor3 = C.BTN
+    Frame.BorderSizePixel = 0
+    Frame.LayoutOrder = order
+    Frame.ZIndex = 12
+    Frame.Parent = BtnArea
+    corner(Frame, 10)
+    stroke(Frame, C.ACCENT, 1)
+
+    local ClickArea = Instance.new("TextButton")
+    ClickArea.Size = UDim2.new(1, -50, 1, 0)
+    ClickArea.BackgroundTransparency = 1
+    ClickArea.Text = ""
+    ClickArea.ZIndex = 14
+    ClickArea.Parent = Frame
+
+    local IconBg = Instance.new("TextLabel")
+    IconBg.Size = UDim2.new(0, 34, 0, 34)
+    IconBg.Position = UDim2.new(0, 10, 0.5, -17)
+    IconBg.BackgroundColor3 = C.ACCENT
+    IconBg.Text = icon
+    IconBg.TextSize = 17
+    IconBg.Font = Enum.Font.GothamBold
+    IconBg.TextColor3 = Color3.fromRGB(28, 18, 4)
+    IconBg.ZIndex = 13
+    IconBg.Parent = Frame
+    corner(IconBg, 8)
+
+    local NameLbl = Instance.new("TextLabel")
+    NameLbl.Size = UDim2.new(1, -110, 0, 20)
+    NameLbl.Position = UDim2.new(0, 52, 0, 9)
+    NameLbl.BackgroundTransparency = 1
+    NameLbl.Text = name
+    NameLbl.TextColor3 = C.TEXT
+    NameLbl.TextSize = 13
+    NameLbl.Font = Enum.Font.GothamBold
+    NameLbl.TextXAlignment = Enum.TextXAlignment.Left
+    NameLbl.ZIndex = 13
+    NameLbl.Parent = Frame
+
+    local StatusLbl = Instance.new("TextLabel")
+    StatusLbl.Size = UDim2.new(1, -110, 0, 14)
+    StatusLbl.Position = UDim2.new(0, 52, 0, 31)
+    StatusLbl.BackgroundTransparency = 1
+    StatusLbl.Text = "Click to execute"
+    StatusLbl.TextColor3 = C.TEXT_SUB
+    StatusLbl.TextSize = 10
+    StatusLbl.Font = Enum.Font.Gotham
+    StatusLbl.TextXAlignment = Enum.TextXAlignment.Left
+    StatusLbl.ZIndex = 13
+    StatusLbl.Parent = Frame
+
+    local StopBtn = Instance.new("TextButton")
+    StopBtn.Size = UDim2.new(0, 38, 0, 28)
+    StopBtn.Position = UDim2.new(1, -44, 0.5, -14)
+    StopBtn.BackgroundColor3 = Color3.fromRGB(55, 45, 70)
+    StopBtn.Text = "⏹"
+    StopBtn.TextSize = 13
+    StopBtn.Font = Enum.Font.GothamBold
+    StopBtn.TextColor3 = Color3.fromRGB(180, 160, 220)
+    StopBtn.BorderSizePixel = 0
+    StopBtn.ZIndex = 15
+    StopBtn.Parent = Frame
+    corner(StopBtn, 7)
+
+    btnDataMap[name] = {status = StatusLbl, icon = IconBg, frame = Frame}
+
+    -- Check if already running (after hop)
+    local saved = loadState()
+    if saved[name] and os.time() < saved[name].endTime then
+        StatusLbl.Text       = "✓ Running"
+        StatusLbl.TextColor3 = C.GREEN
+    end
+
+    -- Hover
+    ClickArea.MouseEnter:Connect(function()
+        tw(Frame, {BackgroundColor3 = C.BTN_HOVER}, 0.12)
+        tw(IconBg, {BackgroundColor3 = C.ACCENT2}, 0.12)
+    end)
+    ClickArea.MouseLeave:Connect(function()
+        tw(Frame, {BackgroundColor3 = C.BTN}, 0.12)
+        tw(IconBg, {BackgroundColor3 = C.ACCENT}, 0.12)
+    end)
+    StopBtn.MouseEnter:Connect(function()
+        tw(StopBtn, {BackgroundColor3 = Color3.fromRGB(90, 60, 130)}, 0.12)
+    end)
+    StopBtn.MouseLeave:Connect(function()
+        tw(StopBtn, {BackgroundColor3 = Color3.fromRGB(55, 45, 70)}, 0.12)
+    end)
+
+    -- Execute
+    ClickArea.MouseButton1Click:Connect(function()
+        tw(Frame, {BackgroundColor3 = Color3.fromRGB(85, 68, 32)}, 0.08)
+        task.delay(0.15, function() tw(Frame, {BackgroundColor3 = C.BTN}, 0.15) end)
+        task.spawn(function() startScript(name) end)
+    end)
+
+    -- Stop = dừng hoàn toàn
+    StopBtn.MouseButton1Click:Connect(function()
+        stopScript(name)
+        StatusLbl.Text       = "⏹ Stopped"
+        StatusLbl.TextColor3 = C.RED
+        TimerLabel.Text      = "⏹ " .. name .. " đã dừng"
+        tw(StopBtn, {BackgroundColor3 = Color3.fromRGB(100, 55, 55)}, 0.08)
+        task.delay(0.3, function()
+            tw(StopBtn, {BackgroundColor3 = Color3.fromRGB(55, 45, 70)}, 0.15)
+        end)
+    end)
+end
+
+makeScriptBtn("Banana Hub",    1)
+makeScriptBtn("Kaitun Banana", 2)
+makeScriptBtn("Kaitun Bounty", 3)
+
+-- =====================
+-- MINI STATS LOOP
+-- =====================
+local pingSamples, fpsSamples = {}, {}
+local statsStart = tick()
+
+local function smooth(tbl, val)
+    table.insert(tbl, val)
+    if #tbl > 10 then table.remove(tbl, 1) end
+    local s = 0
+    for _, v in ipairs(tbl) do s += v end
+    return math.floor(s / #tbl)
+end
+
+local function rainbowHex()
+    local t = tick() * 1.5
+    return string.format("rgb(%d,%d,%d)",
+        math.floor(math.sin(t)     * 100 + 155),
+        math.floor(math.sin(t + 2) * 100 + 155),
+        math.floor(math.sin(t + 4) * 100 + 155)
+    )
+end
+
+RunService.RenderStepped:Connect(function(dt)
+    local fps  = smooth(fpsSamples, dt > 0 and math.floor(1 / dt) or 0)
+    local ping = 0
+    pcall(function()
+        ping = smooth(pingSamples, Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+    end)
+    local players = #Players:GetPlayers()
+    local e = math.floor(tick() - statsStart)
+    local h, m, s = math.floor(e / 3600), math.floor((e % 3600) / 60), e % 60
+
+    local fpsCol  = fps  < 20  and "rgb(255,80,80)"  or fps  < 25 and "rgb(255,180,60)" or rainbowHex()
+    local pingCol = ping > 200 and "rgb(255,80,80)"  or ping > 100 and "rgb(255,180,60)" or rainbowHex()
+    local col     = rainbowHex()
+
+    StatsLabel.Text = string.format(
+        "<b><font color='%s'>⚡ FPS: %d</font>  <font color='%s'>👥 Players: %d</font></b>\n" ..
+        "<b><font color='%s'>📶 Ping: %d ms</font>  <font color='%s'>⏱ %02d:%02d:%02d</font></b>",
+        fpsCol, fps, col, players,
+        pingCol, ping, col, h, m, s
+    )
+end)
+
+-- =====================
+-- RESUME AFTER HOP
+-- =====================
+task.spawn(function()
+    task.wait(5)
+    local state = loadState()
+    for name, info in pairs(state) do
+        if SCRIPTS[name] and os.time() < info.endTime then
+            print("🔄 BCH Resume: " .. name .. " | còn " .. formatTime(info.endTime - os.time()))
+            local bd = btnDataMap[name]
+            if bd then
+                bd.status.Text       = "⟳ Resuming..."
+                bd.status.TextColor3 = C.ACCENT
+            end
+            task.wait(2)
+            startScript(name, info.endTime)
+            print("✅ BCH Resumed: " .. name)
+        elseif os.time() >= (info.endTime or 0) then
+            clearState(name)
+        end
+    end
+end)
+
+-- =====================
+-- DRAGGABLE
+-- =====================
+local drag, dragStart, dragPos = false, nil, nil
+
+Header.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1
+    or i.UserInputType == Enum.UserInputType.Touch then
+        drag = true; dragStart = i.Position; dragPos = Main.Position
+    end
+end)
+Header.InputEnded:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1
+    or i.UserInputType == Enum.UserInputType.Touch then
+        drag = false
+    end
+end)
+UserInputService.InputChanged:Connect(function(i)
+    if drag and (i.UserInputType == Enum.UserInputType.MouseMovement
+              or i.UserInputType == Enum.UserInputType.Touch) then
+        local d = i.Position - dragStart
+        Main.Position = UDim2.new(
+            dragPos.X.Scale, dragPos.X.Offset + d.X,
+            dragPos.Y.Scale, dragPos.Y.Offset + d.Y
+        )
+    end
+end)
+
+-- =====================
+-- OPEN / CLOSE
+-- =====================
+local isOpen = false
+
+local function openGUI()
+    isOpen = true
+    Main.Visible = true
+    Main.Size = UDim2.new(0, FRAME_W, 0, 0)
+    tw(Main, {Size = UDim2.new(0, FRAME_W, 0, FRAME_H)}, 0.4, Enum.EasingStyle.Back)
+    tw(ExecBtn, {BackgroundColor3 = Color3.fromRGB(190, 145, 35)}, 0.2)
+end
+
+local function closeGUI()
+    isOpen = false
+    tw(Main, {Size = UDim2.new(0, FRAME_W, 0, 0)}, 0.28)
+    task.delay(0.3, function()
+        if not isOpen then Main.Visible = false end
+    end)
+    tw(ExecBtn, {BackgroundColor3 = C.ACCENT}, 0.2)
+end
+
+ExecBtn.MouseButton1Click:Connect(function()
+    if isOpen then closeGUI() else openGUI() end
+end)
+CloseBtn.MouseButton1Click:Connect(closeGUI)
+
+-- =====================
+-- BANANA CAT HUB - Final Version
+-- =====================
+
+local Players          = game:GetService("Players")
+local TweenService     = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService       = game:GetService("RunService")
+local TeleportService  = game:GetService("TeleportService")
+local HttpService      = game:GetService("HttpService")
+local Stats            = game:GetService("Stats")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui   = LocalPlayer:WaitForChild("PlayerGui")
+
+-- =====================
+-- CONFIG
+-- =====================
+local AUTO_EXEC_DURATION = 3600
+local AUTO_EXEC_INTERVAL = 30
+local STATE_FILE         = "BCH_state.json"
+local FPS_CAP            = 30
+
+-- =====================
+-- COLORS
+-- =====================
+local C = {
+    BG        = Color3.fromRGB(22, 18, 14),
+    PANEL     = Color3.fromRGB(38, 30, 20),
+    ACCENT    = Color3.fromRGB(255, 200, 60),
+    ACCENT2   = Color3.fromRGB(255, 140, 40),
+    BTN       = Color3.fromRGB(50, 40, 28),
+    BTN_HOVER = Color3.fromRGB(72, 58, 36),
+    TEXT      = Color3.fromRGB(255, 240, 200),
+    TEXT_SUB  = Color3.fromRGB(180, 160, 110),
+    GREEN     = Color3.fromRGB(80, 220, 100),
+    RED       = Color3.fromRGB(220, 80, 60),
+    CLOSE     = Color3.fromRGB(200, 65, 50),
+}
+
+-- =====================
+-- SCRIPTS
+-- =====================
+local SCRIPTS = {
+    ["Banana Hub"] = [[
+        repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+        getgenv().Key = "4b762e8f5b1a50786aee5b6e"
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaHub.lua"))()
+    ]],
+    ["Kaitun Banana"] = [[
+repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+getgenv().Key = "4b762e8f5b1a50786aee5b6e"
+getgenv().SettingFarm ={
+    ["Hide UI"] = false,
+    ["Reset Teleport"] = {
+        ["Enabled"] = false,
+        ["Delay Reset"] = 3,
+        ["Item Dont Reset"] = {
+            ["Fruit"] = {
+                ["Enabled"] = true,
+                ["All Fruit"] = true, 
+                ["Select Fruit"] = {
+                    ["Enabled"] = false,
+                    ["Fruit"] = {},
+                },
+            },
+        },
+    },
+    ["White Screen"] = false,
+    ["Lock Fps"] = {
+        ["Enabled"] = false,
+        ["FPS"] = 20,
+    },
+    ["Get Items"] = {
+        ["Saber"] = true,
+        ["Godhuman"] =  true,
+        ["Skull Guitar"] = true,
+        ["Mirror Fractal"] = true,
+        ["Cursed Dual Katana"] = true,
+        ["Upgrade Race V2-V3"] = true,
+        ["Auto Pull Lever"] = true,
+        ["Shark Anchor"] = true, --- if have cdk,sg,godhuman
+    },
+    ["Get Rare Items"] = {
+        ["Rengoku"] = false,
+        ["Dragon Trident"] = false, 
+        ["Pole (1st Form)"] = false,
+        ["Gravity Blade"]  = false,
+    },
+    ["Farm Fragments"] = {
+        ["Enabled"]  = false,
+        ["Fragment"] = 50000,
+    },
+    ["Auto Chat"] = {
+        ["Enabled"] = false,
+        ["Text"] = "",
+    },
+    ["Auto Summon Rip Indra"] = true, --- auto buy haki and craft haki legendary 
+    ["Select Hop"] = { -- 70% will have it
+        ["Hop Server If Have Player Near"] = false, 
+        ["Hop Find Rip Indra Get Valkyrie Helm or Get Tushita"] = true, 
+        ["Hop Find Dough King Get Mirror Fractal"] = false,
+        ["Hop Find Raids Castle [CDK]"] = true,
+        ["Hop Find Cake Queen [CDK]"] = true,
+        ["Hop Find Soul Reaper [CDK]"] = true,
+        ["Hop Find Darkbeard [SG]"] = true,
+        ["Hop Find Mirage [ Pull Lever ]"] = false,
+    },
+    ["Farm Mastery"] = {
+        ["Melee"] = false,
+        ["Sword"] = false,
+    },
+    ["Buy Haki"] = {
+        ["Enhancement"] = true,
+        ["Skyjump"] = true,
+        ["Flash Step"] = true,
+        ["Observation"] = true,
+    },
+    ["Sniper Fruit Shop"] = {
+        ["Enabled"] = true, -- Auto Buy Fruit in Shop Mirage and Normal
+        ["Fruit"] = {"Leopard-Leopard","Kitsune-Kitsune","Dragon-Dragon","Yeti-Yeti","Gas-Gas"},
+    },
+    ["Lock Fruit"] = {},
+    ["Webhook"] = {
+        ["Enabled"] = true,
+        ["WebhookUrl"] = "https://discord.com/api/webhooks/1470620158518099990/L_u1KQfvo8eOZpmRNSyOFP9L1Q0zl-Kq1L8PlJsMFVfHjIfh6pyDM9OrHSNNehVgUgQd",
+    }
+}
+loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()    ]],
+    ["Kaitun Bounty"] = [[
+        repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+        getgenv().Key = "4b762e8f5b1a50786aee5b6e"
+        getgenv().config = {
+            team = "Pirates",
+            hpTimeout = 15,
+            targetTimeout = 20,
+            lowHealth = 4000,
+            safeHealth = 4500,
+            blackScreen = false,
+            useSkill = false,
+            equipPaleScarf = false,
+            webhookurl = "https://discord.com/api/webhooks/1470620158518099990/L_u1KQfvo8eOZpmRNSyOFP9L1Q0zl-Kq1L8PlJsMFVfHjIfh6pyDM9OrHSNNehVgUgQd",
+            webhookEnable = true,
+            webhookSendMinutes = 5,
+            attackSpeed = 0.001,
+            mode = 1,
+            sea = 3,
+            region = "Singapore",
+            trans = false,
+            bltween = true,
+            bpsit = true,
+        }
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/refs/heads/main/Bountynew.lua"))()
+    ]],
+}
+
+-- =====================
+-- FPS LOCK
+-- =====================
+if setfpscap then
+    setfpscap(FPS_CAP)
+else
+    local last  = tick()
+    local frame = 1 / FPS_CAP
+    RunService.RenderStepped:Connect(function()
+        local now = tick()
+        if now - last < frame then task.wait(frame - (now - last)) end
+        last = tick()
+    end)
+end
+
+-- =====================
+-- STATE FILE
+-- =====================
+local function saveState(state)
+    pcall(function()
+        writefile(STATE_FILE, HttpService:JSONEncode(state))
+    end)
+end
+
+local function loadState()
+    local ok, raw = pcall(readfile, STATE_FILE)
+    if not ok or not raw or raw == "" then return {} end
+    local ok2, data = pcall(function() return HttpService:JSONDecode(raw) end)
+    return ok2 and data or {}
+end
+
+local function clearState(name)
+    local s = loadState()
+    s[name] = nil
+    saveState(s)
+end
+
+local function updateState(name, endTime)
+    local s = loadState()
+    s[name] = {endTime = endTime}
+    saveState(s)
+end
+
+-- =====================
+-- CLEANUP OLD GUI
+-- =====================
+if PlayerGui:FindFirstChild("BananaCatHub") then
+    PlayerGui.BananaCatHub:Destroy()
+end
+
+-- =====================
+-- HELPERS
+-- =====================
+local function tw(obj, props, t, style, dir)
+    TweenService:Create(obj,
+        TweenInfo.new(t or 0.3, style or Enum.EasingStyle.Quart, dir or Enum.EasingDirection.Out),
+        props):Play()
+end
+
+local function corner(p, r)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, r or 10)
+    c.Parent = p
+end
+
+local function stroke(p, col, thick)
+    local s = Instance.new("UIStroke")
+    s.Color = col or C.ACCENT
+    s.Thickness = thick or 1.2
+    s.Transparency = 0.4
+    s.Parent = p
+end
+
+local function formatTime(s)
+    return string.format("%02d:%02d", math.floor(s / 60), s % 60)
+end
+
+-- =====================
+-- SCREEN GUI
+-- =====================
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "BananaCatHub"
+Gui.ResetOnSpawn = false
+Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Gui.IgnoreGuiInset = true
+Gui.Parent = PlayerGui
+
+-- =====================
+-- EXECUTE BUTTON
+-- =====================
+local ExecBtn = Instance.new("TextButton")
+ExecBtn.Size = UDim2.new(0, 112, 0, 36)
+ExecBtn.Position = UDim2.new(1, -122, 1, -50)
+ExecBtn.BackgroundColor3 = C.ACCENT
+ExecBtn.Text = "🍌 Execute"
+ExecBtn.TextColor3 = Color3.fromRGB(28, 18, 4)
+ExecBtn.TextSize = 14
+ExecBtn.Font = Enum.Font.GothamBold
+ExecBtn.BorderSizePixel = 0
+ExecBtn.ZIndex = 20
+ExecBtn.Parent = Gui
+corner(ExecBtn, 18)
+stroke(ExecBtn, Color3.fromRGB(255, 225, 110), 2)
+
+ExecBtn.MouseEnter:Connect(function()
+    tw(ExecBtn, {BackgroundColor3 = Color3.fromRGB(255, 218, 70), Size = UDim2.new(0, 118, 0, 38)}, 0.12)
+end)
+ExecBtn.MouseLeave:Connect(function()
+    tw(ExecBtn, {BackgroundColor3 = C.ACCENT, Size = UDim2.new(0, 112, 0, 36)}, 0.12)
+end)
+
+-- =====================
+-- MAIN FRAME
+-- =====================
+local FRAME_W = 288
+local FRAME_H = 430
+
+local Main = Instance.new("Frame")
+Main.Name = "Main"
+Main.Size = UDim2.new(0, FRAME_W, 0, 0)
+Main.Position = UDim2.new(1, -(FRAME_W + 10), 1, -56)
+Main.AnchorPoint = Vector2.new(0, 1)
+Main.BackgroundColor3 = C.BG
+Main.BorderSizePixel = 0
+Main.ClipsDescendants = true
+Main.ZIndex = 10
+Main.Visible = false
+Main.Parent = Gui
+corner(Main, 16)
+stroke(Main, C.ACCENT, 1.5)
+
+-- Top accent bar
+local Bar = Instance.new("Frame")
+Bar.Size = UDim2.new(1, 0, 0, 3)
+Bar.BackgroundColor3 = C.ACCENT
+Bar.BorderSizePixel = 0
+Bar.ZIndex = 11
+Bar.Parent = Main
+do
+    local g = Instance.new("UIGradient")
+    g.Color = ColorSequence.new(C.ACCENT, C.ACCENT2)
+    g.Rotation = 0
+    g.Parent = Bar
+end
+
+-- Header
+local Header = Instance.new("Frame")
+Header.Size = UDim2.new(1, 0, 0, 54)
+Header.Position = UDim2.new(0, 0, 0, 3)
+Header.BackgroundColor3 = C.PANEL
+Header.BorderSizePixel = 0
+Header.ZIndex = 11
+Header.Parent = Main
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -50, 0, 24)
+Title.Position = UDim2.new(0, 14, 0, 8)
+Title.BackgroundTransparency = 1
+Title.Text = "🍌 Banana Cat Hub"
+Title.TextColor3 = C.ACCENT
+Title.TextSize = 15
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.ZIndex = 12
+Title.Parent = Header
+
+local Sub = Instance.new("TextLabel")
+Sub.Size = UDim2.new(1, -50, 0, 14)
+Sub.Position = UDim2.new(0, 14, 0, 34)
+Sub.BackgroundTransparency = 1
+Sub.Text = "Blox Fruits  •  Auto Farm  •  FPS: " .. FPS_CAP
+Sub.TextColor3 = C.TEXT_SUB
+Sub.TextSize = 10
+Sub.Font = Enum.Font.Gotham
+Sub.TextXAlignment = Enum.TextXAlignment.Left
+Sub.ZIndex = 12
+Sub.Parent = Header
+
+-- Close button
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 26, 0, 26)
+CloseBtn.Position = UDim2.new(1, -36, 0, 14)
+CloseBtn.BackgroundColor3 = C.CLOSE
+CloseBtn.Text = "✕"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.TextSize = 12
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.BorderSizePixel = 0
+CloseBtn.ZIndex = 13
+CloseBtn.Parent = Main
+corner(CloseBtn, 7)
+
+CloseBtn.MouseEnter:Connect(function() tw(CloseBtn, {BackgroundColor3 = Color3.fromRGB(255, 90, 70)}, 0.12) end)
+CloseBtn.MouseLeave:Connect(function() tw(CloseBtn, {BackgroundColor3 = C.CLOSE}, 0.12) end)
+
+-- Divider 1
+local Div1 = Instance.new("Frame")
+Div1.Size = UDim2.new(1, -24, 0, 1)
+Div1.Position = UDim2.new(0, 12, 0, 60)
+Div1.BackgroundColor3 = C.ACCENT
+Div1.BackgroundTransparency = 0.75
+Div1.BorderSizePixel = 0
+Div1.ZIndex = 11
+Div1.Parent = Main
+
+-- =====================
+-- SCRIPT BUTTONS AREA (3 buttons)
+-- =====================
+local BtnArea = Instance.new("Frame")
+BtnArea.Size = UDim2.new(1, -24, 0, 196)
+BtnArea.Position = UDim2.new(0, 12, 0, 68)
+BtnArea.BackgroundTransparency = 1
+BtnArea.ZIndex = 11
+BtnArea.Parent = Main
+
+local BtnList = Instance.new("UIListLayout")
+BtnList.Padding = UDim.new(0, 8)
+BtnList.SortOrder = Enum.SortOrder.LayoutOrder
+BtnList.Parent = BtnArea
+
+-- Divider 2
+local Div2 = Instance.new("Frame")
+Div2.Size = UDim2.new(1, -24, 0, 1)
+Div2.Position = UDim2.new(0, 12, 0, 272)
+Div2.BackgroundColor3 = C.ACCENT
+Div2.BackgroundTransparency = 0.75
+Div2.BorderSizePixel = 0
+Div2.ZIndex = 11
+Div2.Parent = Main
+
+-- =====================
+-- MINI STATS
+-- =====================
+local StatsFrame = Instance.new("Frame")
+StatsFrame.Size = UDim2.new(1, -24, 0, 80)
+StatsFrame.Position = UDim2.new(0, 12, 0, 280)
+StatsFrame.BackgroundColor3 = C.PANEL
+StatsFrame.BorderSizePixel = 0
+StatsFrame.ZIndex = 11
+StatsFrame.Parent = Main
+corner(StatsFrame, 8)
+stroke(StatsFrame, C.ACCENT, 1)
+
+local StatsLabel = Instance.new("TextLabel")
+StatsLabel.Size = UDim2.new(1, -16, 1, -10)
+StatsLabel.Position = UDim2.new(0, 10, 0, 5)
+StatsLabel.BackgroundTransparency = 1
+StatsLabel.TextXAlignment = Enum.TextXAlignment.Left
+StatsLabel.TextYAlignment = Enum.TextYAlignment.Top
+StatsLabel.TextSize = 15
+StatsLabel.Font = Enum.Font.GothamBold
+StatsLabel.RichText = true
+StatsLabel.ZIndex = 12
+StatsLabel.Parent = StatsFrame
+
+-- Timer label
+local TimerLabel = Instance.new("TextLabel")
+TimerLabel.Size = UDim2.new(1, -24, 0, 18)
+TimerLabel.Position = UDim2.new(0, 12, 0, 368)
+TimerLabel.BackgroundTransparency = 1
+TimerLabel.Text = ""
+TimerLabel.TextColor3 = C.TEXT_SUB
+TimerLabel.TextSize = 11
+TimerLabel.Font = Enum.Font.Gotham
+TimerLabel.TextXAlignment = Enum.TextXAlignment.Center
+TimerLabel.ZIndex = 11
+TimerLabel.Parent = Main
+
+-- Reconnect label
+local ReconLabel = Instance.new("TextLabel")
+ReconLabel.Size = UDim2.new(1, -24, 0, 16)
+ReconLabel.Position = UDim2.new(0, 12, 0, 388)
+ReconLabel.BackgroundTransparency = 1
+ReconLabel.Text = "🔄 Auto Reconnect: ON"
+ReconLabel.TextColor3 = C.GREEN
+ReconLabel.TextSize = 11
+ReconLabel.Font = Enum.Font.Gotham
+ReconLabel.TextXAlignment = Enum.TextXAlignment.Center
+ReconLabel.ZIndex = 11
+ReconLabel.Parent = Main
+
+-- =====================
+-- AUTO EXEC ENGINE
+-- =====================
+local activeTimers = {}
+local activeConns  = {}
+local btnDataMap   = {}
+
+local function stopScript(name)
+    if activeTimers[name] then
+        task.cancel(activeTimers[name])
+        activeTimers[name] = nil
+    end
+    if activeConns[name] then
+        activeConns[name]:Disconnect()
+        activeConns[name] = nil
+    end
+    clearState(name)
+end
+
+local function startCountdown(name, endTime)
+    if activeConns[name] then activeConns[name]:Disconnect() end
+    activeConns[name] = RunService.Heartbeat:Connect(function()
+        local rem = endTime - os.time()
+        local bd  = btnDataMap[name]
+        if rem <= 0 then
+            TimerLabel.Text = "⏹ " .. name .. " ended"
+            activeConns[name]:Disconnect()
+            activeConns[name] = nil
+            if bd then
+                bd.status.Text      = "⏹ Stopped (1h)"
+                bd.status.TextColor3 = C.TEXT_SUB
+            end
+        else
+            TimerLabel.Text = "⏱ " .. name .. " → " .. formatTime(rem)
+        end
+    end)
+end
+
+local function execScript(name)
+    local code = SCRIPTS[name]
+    if not code then return false end
+    local ok, err = pcall(function() loadstring(code)() end)
+    if not ok then warn("BCH [" .. name .. "]: " .. tostring(err)) end
+    return ok
+end
+
+local function startScript(name, endTime)
+    stopScript(name)
+    endTime = endTime or (os.time() + AUTO_EXEC_DURATION)
+    updateState(name, endTime)
+
+    local bd = btnDataMap[name]
+    if bd then
+        bd.status.Text       = "⟳ Loading..."
+        bd.status.TextColor3 = C.ACCENT
+    end
+
+    task.spawn(function()
+        local ok = execScript(name)
+        if bd then
+            bd.status.Text       = ok and "✓ Running" or "✗ Error"
+            bd.status.TextColor3 = ok and C.GREEN or C.RED
+        end
+    end)
+
+    startCountdown(name, endTime)
+
+    activeTimers[name] = task.spawn(function()
+        while true do
+            task.wait(AUTO_EXEC_INTERVAL)
+            local state = loadState()
+            local info  = state[name]
+            if not info or os.time() >= info.endTime then
+                clearState(name)
+                if bd then
+                    bd.status.Text       = "⏹ Stopped (1h)"
+                    bd.status.TextColor3 = C.TEXT_SUB
+                end
+                TimerLabel.Text = "⏹ " .. name .. " ended"
+                break
+            end
+            task.spawn(function() execScript(name) end)
+        end
+        activeTimers[name] = nil
+    end)
+end
+
+-- =====================
+-- SCRIPT BUTTON FACTORY
+-- =====================
+local ICONS = {
+    ["Banana Hub"]    = "🍌",
+    ["Kaitun Banana"] = "🐱",
+    ["Kaitun Bounty"] = "⚔️",
+}
+
+local function makeScriptBtn(name, order)
+    local icon = ICONS[name] or "▶"
+
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(1, 0, 0, 54)
+    Frame.BackgroundColor3 = C.BTN
+    Frame.BorderSizePixel = 0
+    Frame.LayoutOrder = order
+    Frame.ZIndex = 12
+    Frame.Parent = BtnArea
+    corner(Frame, 10)
+    stroke(Frame, C.ACCENT, 1)
+
+    local ClickArea = Instance.new("TextButton")
+    ClickArea.Size = UDim2.new(1, -50, 1, 0)
+    ClickArea.BackgroundTransparency = 1
+    ClickArea.Text = ""
+    ClickArea.ZIndex = 14
+    ClickArea.Parent = Frame
+
+    local IconBg = Instance.new("TextLabel")
+    IconBg.Size = UDim2.new(0, 34, 0, 34)
+    IconBg.Position = UDim2.new(0, 10, 0.5, -17)
+    IconBg.BackgroundColor3 = C.ACCENT
+    IconBg.Text = icon
+    IconBg.TextSize = 17
+    IconBg.Font = Enum.Font.GothamBold
+    IconBg.TextColor3 = Color3.fromRGB(28, 18, 4)
+    IconBg.ZIndex = 13
+    IconBg.Parent = Frame
+    corner(IconBg, 8)
+
+    local NameLbl = Instance.new("TextLabel")
+    NameLbl.Size = UDim2.new(1, -110, 0, 20)
+    NameLbl.Position = UDim2.new(0, 52, 0, 9)
+    NameLbl.BackgroundTransparency = 1
+    NameLbl.Text = name
+    NameLbl.TextColor3 = C.TEXT
+    NameLbl.TextSize = 13
+    NameLbl.Font = Enum.Font.GothamBold
+    NameLbl.TextXAlignment = Enum.TextXAlignment.Left
+    NameLbl.ZIndex = 13
+    NameLbl.Parent = Frame
+
+    local StatusLbl = Instance.new("TextLabel")
+    StatusLbl.Size = UDim2.new(1, -110, 0, 14)
+    StatusLbl.Position = UDim2.new(0, 52, 0, 31)
+    StatusLbl.BackgroundTransparency = 1
+    StatusLbl.Text = "Click to execute"
+    StatusLbl.TextColor3 = C.TEXT_SUB
+    StatusLbl.TextSize = 10
+    StatusLbl.Font = Enum.Font.Gotham
+    StatusLbl.TextXAlignment = Enum.TextXAlignment.Left
+    StatusLbl.ZIndex = 13
+    StatusLbl.Parent = Frame
+
+    local StopBtn = Instance.new("TextButton")
+    StopBtn.Size = UDim2.new(0, 38, 0, 28)
+    StopBtn.Position = UDim2.new(1, -44, 0.5, -14)
+    StopBtn.BackgroundColor3 = Color3.fromRGB(55, 45, 70)
+    StopBtn.Text = "⏹"
+    StopBtn.TextSize = 13
+    StopBtn.Font = Enum.Font.GothamBold
+    StopBtn.TextColor3 = Color3.fromRGB(180, 160, 220)
+    StopBtn.BorderSizePixel = 0
+    StopBtn.ZIndex = 15
+    StopBtn.Parent = Frame
+    corner(StopBtn, 7)
+
+    btnDataMap[name] = {status = StatusLbl, icon = IconBg, frame = Frame}
+
+    -- Check if already running (after hop)
+    local saved = loadState()
+    if saved[name] and os.time() < saved[name].endTime then
+        StatusLbl.Text       = "✓ Running"
+        StatusLbl.TextColor3 = C.GREEN
+    end
+
+    -- Hover
+    ClickArea.MouseEnter:Connect(function()
+        tw(Frame, {BackgroundColor3 = C.BTN_HOVER}, 0.12)
+        tw(IconBg, {BackgroundColor3 = C.ACCENT2}, 0.12)
+    end)
+    ClickArea.MouseLeave:Connect(function()
+        tw(Frame, {BackgroundColor3 = C.BTN}, 0.12)
+        tw(IconBg, {BackgroundColor3 = C.ACCENT}, 0.12)
+    end)
+    StopBtn.MouseEnter:Connect(function()
+        tw(StopBtn, {BackgroundColor3 = Color3.fromRGB(90, 60, 130)}, 0.12)
+    end)
+    StopBtn.MouseLeave:Connect(function()
+        tw(StopBtn, {BackgroundColor3 = Color3.fromRGB(55, 45, 70)}, 0.12)
+    end)
+
+    -- Execute
+    ClickArea.MouseButton1Click:Connect(function()
+        tw(Frame, {BackgroundColor3 = Color3.fromRGB(85, 68, 32)}, 0.08)
+        task.delay(0.15, function() tw(Frame, {BackgroundColor3 = C.BTN}, 0.15) end)
+        task.spawn(function() startScript(name) end)
+    end)
+
+    -- Stop = dừng hoàn toàn
+    StopBtn.MouseButton1Click:Connect(function()
+        stopScript(name)
+        StatusLbl.Text       = "⏹ Stopped"
+        StatusLbl.TextColor3 = C.RED
+        TimerLabel.Text      = "⏹ " .. name .. " đã dừng"
+        tw(StopBtn, {BackgroundColor3 = Color3.fromRGB(100, 55, 55)}, 0.08)
+        task.delay(0.3, function()
+            tw(StopBtn, {BackgroundColor3 = Color3.fromRGB(55, 45, 70)}, 0.15)
+        end)
+    end)
+end
+
+makeScriptBtn("Banana Hub",    1)
+makeScriptBtn("Kaitun Banana", 2)
+makeScriptBtn("Kaitun Bounty", 3)
+
+-- =====================
+-- MINI STATS LOOP
+-- =====================
+local pingSamples, fpsSamples = {}, {}
+local statsStart = tick()
+
+local function smooth(tbl, val)
+    table.insert(tbl, val)
+    if #tbl > 10 then table.remove(tbl, 1) end
+    local s = 0
+    for _, v in ipairs(tbl) do s += v end
+    return math.floor(s / #tbl)
+end
+
+local function rainbowHex()
+    local t = tick() * 1.5
+    return string.format("rgb(%d,%d,%d)",
+        math.floor(math.sin(t)     * 100 + 155),
+        math.floor(math.sin(t + 2) * 100 + 155),
+        math.floor(math.sin(t + 4) * 100 + 155)
+    )
+end
+
+RunService.RenderStepped:Connect(function(dt)
+    local fps  = smooth(fpsSamples, dt > 0 and math.floor(1 / dt) or 0)
+    local ping = 0
+    pcall(function()
+        ping = smooth(pingSamples, Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+    end)
+    local players = #Players:GetPlayers()
+    local e = math.floor(tick() - statsStart)
+    local h, m, s = math.floor(e / 3600), math.floor((e % 3600) / 60), e % 60
+
+    local fpsCol  = fps  < 20  and "rgb(255,80,80)"  or fps  < 25 and "rgb(255,180,60)" or rainbowHex()
+    local pingCol = ping > 200 and "rgb(255,80,80)"  or ping > 100 and "rgb(255,180,60)" or rainbowHex()
+    local col     = rainbowHex()
+
+    StatsLabel.Text = string.format(
+        "<b><font color='%s'>⚡ FPS: %d</font>  <font color='%s'>👥 Players: %d</font></b>\n" ..
+        "<b><font color='%s'>📶 Ping: %d ms</font>  <font color='%s'>⏱ %02d:%02d:%02d</font></b>",
+        fpsCol, fps, col, players,
+        pingCol, ping, col, h, m, s
+    )
+end)
+
+-- =====================
+-- RESUME AFTER HOP
+-- =====================
+task.spawn(function()
+    task.wait(5)
+    local state = loadState()
+    for name, info in pairs(state) do
+        if SCRIPTS[name] and os.time() < info.endTime then
+            print("🔄 BCH Resume: " .. name .. " | còn " .. formatTime(info.endTime - os.time()))
+            local bd = btnDataMap[name]
+            if bd then
+                bd.status.Text       = "⟳ Resuming..."
+                bd.status.TextColor3 = C.ACCENT
+            end
+            task.wait(2)
+            startScript(name, info.endTime)
+            print("✅ BCH Resumed: " .. name)
+        elseif os.time() >= (info.endTime or 0) then
+            clearState(name)
+        end
+    end
+end)
+
+-- =====================
+-- DRAGGABLE
+-- =====================
+local drag, dragStart, dragPos = false, nil, nil
+
+Header.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1
+    or i.UserInputType == Enum.UserInputType.Touch then
+        drag = true; dragStart = i.Position; dragPos = Main.Position
+    end
+end)
+Header.InputEnded:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1
+    or i.UserInputType == Enum.UserInputType.Touch then
+        drag = false
+    end
+end)
+UserInputService.InputChanged:Connect(function(i)
+    if drag and (i.UserInputType == Enum.UserInputType.MouseMovement
+              or i.UserInputType == Enum.UserInputType.Touch) then
+        local d = i.Position - dragStart
+        Main.Position = UDim2.new(
+            dragPos.X.Scale, dragPos.X.Offset + d.X,
+            dragPos.Y.Scale, dragPos.Y.Offset + d.Y
+        )
+    end
+end)
+
+-- =====================
+-- OPEN / CLOSE
+-- =====================
+local isOpen = false
+
+local function openGUI()
+    isOpen = true
+    Main.Visible = true
+    Main.Size = UDim2.new(0, FRAME_W, 0, 0)
+    tw(Main, {Size = UDim2.new(0, FRAME_W, 0, FRAME_H)}, 0.4, Enum.EasingStyle.Back)
+    tw(ExecBtn, {BackgroundColor3 = Color3.fromRGB(190, 145, 35)}, 0.2)
+end
+
+local function closeGUI()
+    isOpen = false
+    tw(Main, {Size = UDim2.new(0, FRAME_W, 0, 0)}, 0.28)
+    task.delay(0.3, function()
+        if not isOpen then Main.Visible = false end
+    end)
+    tw(ExecBtn, {BackgroundColor3 = C.ACCENT}, 0.2)
+end
+
+ExecBtn.MouseButton1Click:Connect(function()
+    if isOpen then closeGUI() else openGUI() end
+end)
+CloseBtn.MouseButton1Click:Connect(closeGUI)
+
+-- =====================
+-- AUTO RECONNECT
+-- =====================
+local placeId = game.PlaceId
+
+-- Cách 1: Bắt teleport fail
+TeleportService.TeleportInitFailed:Connect(function(player, result, errMsg)
+    if player == LocalPlayer then
+        warn("BCH: Teleport failed - " .. tostring(errMsg))
+        task.wait(3)
+        pcall(function()
+            TeleportService:Teleport(placeId, LocalPlayer)
+        end)
+    end
+end)
+
+-- Cách 2: Detect khi bị kick/disconnect bằng heartbeat timeout
+local lastHeartbeat = tick()
+RunService.Heartbeat:Connect(function()
+    lastHeartbeat = tick()
+end)
+
+task.spawn(function()
+    while task.wait(1) do
+        if tick() - lastHeartbeat > 10 then
+            -- Game bị freeze/disconnect
+            pcall(function()
+                TeleportService:Teleport(placeId, LocalPlayer)
+            end)
+        end
+    end
+end)
+
+-- Cách 3: Dùng writefile lưu PlaceId để script biết cần reconnect
+-- (executor như Fluxus/Delta hỗ trợ auto-rejoin built-in)
+local REJOIN_FILE = "BCH_rejoin.json"
+writefile(REJOIN_FILE, HttpService:JSONEncode({
+    placeId = placeId,
+    enabled = true,
+}))
+
+print("🍌 Banana Cat Hub | Ready!")
