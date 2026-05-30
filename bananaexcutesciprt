@@ -1,5 +1,5 @@
 -- =====================
--- BANANA CAT HUB make by 2t88tl
+-- BANANA CAT HUB make by 2t88tl -v1.2 fixed loading sciprt
 -- =====================
 
 local Players          = game:GetService("Players")
@@ -18,7 +18,8 @@ local PlayerGui   = LocalPlayer:WaitForChild("PlayerGui")
 -- =====================
 local AUTO_EXEC_DURATION = 3600
 local AUTO_EXEC_INTERVAL = 30
-local STATE_FILE         = "BCH_state.json"
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local STATE_FILE = "BCH_state_" .. tostring(LocalPlayer.UserId) .. ".json"
 local FPS_CAP            = 30
 
 -- =====================
