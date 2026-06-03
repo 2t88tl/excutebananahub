@@ -8,24 +8,12 @@ local Stats = game:GetService("Stats")
 
 local player = Players.LocalPlayer
 local startTime = tick()
+local fpsLocked = false
+local fpsConnection = nil
 
--- LOCK FPS 30
-if setfpscap then
-    setfpscap(30)
-else
-    local lastTick = tick()
-    local targetFrameTime = 1 / 30
-    RunService.RenderStepped:Connect(function()
-        local now = tick()
-        local delta = now - lastTick
-        if delta < targetFrameTime then
-            task.wait(targetFrameTime - delta)
-        end
-        lastTick = tick()
-    end)
-end
-
+-- =====================
 -- MINI STATS HUD
+-- =====================
 if player.PlayerGui:FindFirstChild("MiniStats") then
     player.PlayerGui.MiniStats:Destroy()
 end
@@ -36,7 +24,7 @@ gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
 local bg = Instance.new("Frame")
-bg.Size = UDim2.new(0, 210, 0, 130)
+bg.Size = UDim2.new(0, 210, 0, 165)
 bg.Position = UDim2.new(0, 8, 0.12, 0)
 bg.BackgroundColor3 = Color3.fromRGB(15, 12, 10)
 bg.BackgroundTransparency = 0.3
@@ -53,17 +41,108 @@ s.Thickness = 1.2
 s.Transparency = 0.4
 s.Parent = bg
 
+-- Stats label
 local label = Instance.new("TextLabel")
-label.Size = UDim2.new(1, -12, 1, -8)
+label.Size = UDim2.new(1, -12, 0, 110)
 label.Position = UDim2.new(0, 8, 0, 4)
 label.BackgroundTransparency = 1
 label.TextXAlignment = Enum.TextXAlignment.Left
 label.TextYAlignment = Enum.TextYAlignment.Top
-label.TextSize = 22
+label.TextSize = 18
 label.Font = Enum.Font.GothamBold
 label.RichText = true
 label.Parent = bg
 
+-- Divider
+local div = Instance.new("Frame")
+div.Size = UDim2.new(1, -16, 0, 1)
+div.Position = UDim2.new(0, 8, 0, 118)
+div.BackgroundColor3 = Color3.fromRGB(255, 200, 60)
+div.BackgroundTransparency = 0.6
+div.BorderSizePixel = 0
+div.Parent = bg
+
+-- Lock FPS Button
+local lockBtn = Instance.new("TextButton")
+lockBtn.Size = UDim2.new(1, -16, 0, 34)
+lockBtn.Position = UDim2.new(0, 8, 0, 124)
+lockBtn.BackgroundColor3 = Color3.fromRGB(50, 40, 28)
+lockBtn.Text = "🔓 FPS: Unlocked"
+lockBtn.TextColor3 = Color3.fromRGB(200, 180, 130)
+lockBtn.TextSize = 13
+lockBtn.Font = Enum.Font.GothamBold
+lockBtn.BorderSizePixel = 0
+lockBtn.Parent = bg
+
+local lc = Instance.new("UICorner")
+lc.CornerRadius = UDim.new(0, 8)
+lc.Parent = lockBtn
+
+local ls = Instance.new("UIStroke")
+ls.Color = Color3.fromRGB(255, 200, 60)
+ls.Thickness = 1
+ls.Transparency = 0.5
+ls.Parent = lockBtn
+
+-- =====================
+-- FPS LOCK LOGIC
+-- =====================
+local function lockFPS()
+    if setfpscap then
+        setfpscap(30)
+    else
+        local last = tick()
+        local frame = 1 / 30
+        fpsConnection = RunService.RenderStepped:Connect(function()
+            local now = tick()
+            if now - last < frame then
+                task.wait(frame - (now - last))
+            end
+            last = tick()
+        end)
+    end
+end
+
+local function unlockFPS()
+    if setfpscap then
+        setfpscap(9999)
+    else
+        if fpsConnection then
+            fpsConnection:Disconnect()
+            fpsConnection = nil
+        end
+    end
+end
+
+-- Toggle button
+lockBtn.MouseButton1Click:Connect(function()
+    fpsLocked = not fpsLocked
+    if fpsLocked then
+        lockFPS()
+        lockBtn.Text = "🔒 FPS: 30 Locked"
+        lockBtn.TextColor3 = Color3.fromRGB(80, 220, 100)
+        lockBtn.BackgroundColor3 = Color3.fromRGB(30, 55, 30)
+        ls.Color = Color3.fromRGB(80, 220, 100)
+    else
+        unlockFPS()
+        lockBtn.Text = "🔓 FPS: Unlocked"
+        lockBtn.TextColor3 = Color3.fromRGB(200, 180, 130)
+        lockBtn.BackgroundColor3 = Color3.fromRGB(50, 40, 28)
+        ls.Color = Color3.fromRGB(255, 200, 60)
+    end
+end)
+
+-- Hover
+lockBtn.MouseEnter:Connect(function()
+    lockBtn.BackgroundTransparency = 0.3
+end)
+lockBtn.MouseLeave:Connect(function()
+    lockBtn.BackgroundTransparency = 0
+end)
+
+-- =====================
+-- SMOOTH SAMPLES
+-- =====================
 local pingSamples, fpsSamples = {}, {}
 
 local function smooth(tbl, val)
@@ -83,6 +162,9 @@ local function rainbowColor()
     )
 end
 
+-- =====================
+-- UPDATE LOOP
+-- =====================
 local connection
 connection = RunService.RenderStepped:Connect(function(dt)
     if not player or not player.Parent then
@@ -96,7 +178,7 @@ connection = RunService.RenderStepped:Connect(function(dt)
         ping = smooth(pingSamples, Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
     end)
 
-    local playersCount = #Players:GetPlayers()
+    local players = #Players:GetPlayers()
     local elapsed = math.floor(tick() - startTime)
     local h = math.floor(elapsed / 3600)
     local m = math.floor((elapsed % 3600) / 60)
@@ -107,12 +189,12 @@ connection = RunService.RenderStepped:Connect(function(dt)
     local pingColor = ping > 200 and "rgb(255,80,80)"  or ping > 100 and "rgb(255,180,60)" or color
 
     label.Text = string.format(
-        "<b><font color='%s'>⚡ FPS: %d</font></b>\n"      ..
-        "<b><font color='%s'>👥 Players: %d</font></b>\n"  ..
-        "<b><font color='%s'>📶 Ping: %d ms</font></b>\n"  ..
+        "<b><font color='%s'>⚡ FPS: %d</font></b>\n"     ..
+        "<b><font color='%s'>👥 Players: %d</font></b>\n" ..
+        "<b><font color='%s'>📶 Ping: %d ms</font></b>\n" ..
         "<b><font color='%s'>⏱ %02d:%02d:%02d</font></b>",
         fpsColor,  fps,
-        color,     playersCount,
+        color,     players,
         pingColor, ping,
         color,     h, m, s
     )
