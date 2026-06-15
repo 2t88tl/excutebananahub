@@ -1,1 +1,398 @@
+--[[ 
+    GAG 2 Auto Farm Script - Bản Đầu
+    Feature: GUI đẹp + Teleport + Lock vị trí + Auto Harvest + Auto Plant + Auto Sell + Auto Buy Seed
+--]]
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
+-- ========== CẤU HÌNH ==========
+local Config = {
+    HarvestDelay = 0.5,      -- giây giữa mỗi lần harvest
+    PlantDelay = 0.8,        -- giây giữa mỗi lần plant
+    SellDelay = 1,           -- giây giữa mỗi lần sell
+    BuySeedDelay = 2,        -- giây giữa mỗi lần mua seed
+    LockPosition = true,     -- lock vị trí khỏi bị cướp
+}
+
+-- ========== BIẾN TOÀN CỤC ==========
+local PlayerPositionLock = nil
+local TotalHarvested = 0
+local TotalSeedsBought = 0
+local LastAction = "Waiting..."
+local CurrentAction = "Idle"
+local IsFarming = true
+
+-- ========== TÌM REMOTE (tự động) ==========
+local function FindRemote(remoteName)
+    local remotes = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+    if remotes and remotes:FindFirstChild(remoteName) then
+        return remotes[remoteName]
+    end
+    return game:GetService("ReplicatedStorage"):FindFirstChild(remoteName)
+end
+
+local SellRemote = FindRemote("SellItem") or FindRemote("SellAll")
+local BuyRemote = FindRemote("BuySeed") or FindRemote("PurchaseSeed")
+local HarvestRemote = FindRemote("Harvest") or FindRemote("CollectPlant")
+
+-- ========== TELEPORT VÀO GIỮA VƯỜN ==========
+local function TeleportToGardenCenter()
+    local plantAreas = {}
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and (obj.Name:find("PlantArea") or obj:FindFirstChild("PlantArea")) then
+            table.insert(plantAreas, obj)
+        end
+    end
+    
+    if #plantAreas > 0 then
+        local totalX, totalZ = 0, 0
+        for _, area in pairs(plantAreas) do
+            local pos = area.Position
+            totalX = totalX + pos.X
+            totalZ = totalZ + pos.Z
+        end
+        local center = Vector3.new(totalX / #plantAreas, plantAreas[1].Position.Y + 3, totalZ / #plantAreas)
+        LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(center))
+        CurrentAction = "Teleported to garden"
+        LastAction = "Teleported to center"
+    else
+        warn("Không tìm thấy PlantArea")
+    end
+end
+
+-- ========== LOCK VỊ TRÍ (chống cướp) ==========
+local function LockPlayerPosition()
+    if not Config.LockPosition then return end
+    local character = LocalPlayer.Character
+    if not character then return end
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if not humanoidRootPart then return end
+    
+    local bodyPosition = Instance.new("BodyPosition")
+    bodyPosition.MaxForce = Vector3.new(4000, 4000, 4000)
+    bodyPosition.D = 500
+    bodyPosition.P = 2000
+    bodyPosition.Position = humanoidRootPart.Position
+    bodyPosition.Parent = humanoidRootPart
+    
+    PlayerPositionLock = bodyPosition
+    
+    -- Cập nhật vị trí mỗi 0.2 giây
+    task.spawn(function()
+        while IsFarming and PlayerPositionLock do
+            task.wait(0.2)
+            if humanoidRootPart and humanoidRootPart.Parent then
+                PlayerPositionLock.Position = humanoidRootPart.Position
+            else
+                break
+            end
+        end
+    end)
+end
+
+-- ========== AUTO HARVEST ==========
+local function AutoHarvest()
+    local harvestPrompts = {}
+    for _, prompt in pairs(workspace:GetDescendants()) do
+        if prompt:IsA("ProximityPrompt") and (prompt.Name:find("Harvest") or prompt.Name:find("Collect")) then
+            -- Tính giá trị bán nếu có
+            local sellValue = 0
+            local parent = prompt.Parent
+            if parent then
+                local val = parent:FindFirstChild("SellValue") or parent:FindFirstChild("Value")
+                if val then
+                    sellValue = tonumber(val.Value) or 0
+                end
+            end
+            table.insert(harvestPrompts, {prompt = prompt, value = sellValue})
+        end
+    end
+    
+    -- Sắp xếp theo giá trị cao nhất trước
+    table.sort(harvestPrompts, function(a, b) return a.value > b.value end)
+    
+    for _, data in pairs(harvestPrompts) do
+        local success, err = pcall(function()
+            data.prompt:PromptButtonHoldBegan(data.prompt.RequiresLineOfSight)
+            task.wait(0.1)
+            data.prompt:PromptButtonHoldEnded()
+        end)
+        if success then
+            TotalHarvested = TotalHarvested + 1
+            CurrentAction = "Harvesting"
+            LastAction = "Harvested plant (value: " .. data.value .. ")"
+            break
+        end
+    end
+end
+
+-- ========== AUTO PLANT ==========
+local function AutoPlant()
+    -- Tìm đất trống
+    local emptyPlots = {}
+    for _, plot in pairs(workspace:GetDescendants()) do
+        if plot:IsA("BasePart") and (plot.Name:find("Plot") or plot.Name:find("Soil")) then
+            local hasPlant = false
+            for _, child in pairs(plot:GetChildren()) do
+                if child:IsA("BasePart") and (child.Name:find("Plant") or child:FindFirstChild("Plant")) then
+                    hasPlant = true
+                    break
+                end
+            end
+            if not hasPlant then
+                table.insert(emptyPlots, plot)
+            end
+        end
+    end
+    
+    if #emptyPlots > 0 then
+        local plot = emptyPlots[math.random(1, #emptyPlots)]
+        -- Lấy seed từ backpack
+        local seeds = {}
+        for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
+            if item:IsA("Tool") and (item.Name:find("Seed") or item:FindFirstChild("IsSeed")) then
+                table.insert(seeds, item)
+            end
+        end
+        if #seeds > 0 then
+            local seed = seeds[1]
+            -- Random jitter
+            local jitter = Vector3.new(
+                (math.random() - 0.5) * 2,
+                0,
+                (math.random() - 0.5) * 2
+            )
+            local plantPos = plot.Position + Vector3.new(0, 2, 0) + jitter
+            -- Equip và plant
+            seed.Parent = LocalPlayer.Character
+            task.wait(0.1)
+            -- Fire remote plant nếu có
+            local plantRemote = FindRemote("PlantSeed")
+            if plantRemote then
+                plantRemote:FireServer(seed, plantPos)
+            end
+            CurrentAction = "Planting"
+            LastAction = "Planted " .. seed.Name
+        end
+    end
+end
+
+-- ========== AUTO SELL ==========
+local function AutoSell()
+    local itemsToSell = {}
+    -- Check backpack
+    for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
+        if item:IsA("Tool") and (item:FindFirstChild("SellValue") or item.Name:find("Fruit") or item.Name:find("Crop")) then
+            table.insert(itemsToSell, item)
+        end
+    end
+    -- Check character
+    if LocalPlayer.Character then
+        for _, item in pairs(LocalPlayer.Character:GetChildren()) do
+            if item:IsA("Tool") and (item:FindFirstChild("SellValue") or item.Name:find("Fruit") or item.Name:find("Crop")) then
+                table.insert(itemsToSell, item)
+            end
+        end
+    end
+    
+    for _, item in pairs(itemsToSell) do
+        if SellRemote then
+            SellRemote:FireServer(item)
+            CurrentAction = "Selling"
+            LastAction = "Sold " .. item.Name
+            task.wait(0.2)
+        end
+    end
+end
+
+-- ========== AUTO BUY SEED ==========
+local function AutoBuySeed()
+    local seedShop = workspace:FindFirstChild("SeedShop") or workspace:FindFirstChild("Shop")
+    if not seedShop then return end
+    
+    -- Seed ưu tiên rẻ -> đắt
+    local seedPriority = {"CarrotSeed", "PotatoSeed", "TomatoSeed", "PumpkinSeed", "MelonSeed", "WatermelonSeed"}
+    
+    for _, seedName in pairs(seedPriority) do
+        local seed = seedShop:FindFirstChild(seedName)
+        if seed and seed:IsA("Tool") then
+            if BuyRemote then
+                BuyRemote:FireServer(seed)
+                TotalSeedsBought = TotalSeedsBought + 1
+                CurrentAction = "Buying seed"
+                LastAction = "Bought " .. seedName
+                break
+            end
+        end
+    end
+end
+
+-- ========== GUI ĐẸP ==========
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AutoFarmGUI"
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = game:GetService("CoreGui")
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 320, 0, 280)
+MainFrame.Position = UDim2.new(0, 20, 0, 20)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+MainFrame.BackgroundTransparency = 0.05
+MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
+MainFrame.Parent = ScreenGui
+
+-- Bo góc
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = MainFrame
+
+-- Hiệu ứng glow (shadow)
+local UIShadow = Instance.new("UICorner")
+UIShadow.CornerRadius = UDim.new(0, 12)
+UIShadow.Parent = MainFrame
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Position = UDim2.new(0, 0, 0, 0)
+Title.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+Title.BackgroundTransparency = 0.2
+Title.Text = "🌾 AUTO FARM GAG 2"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextScaled = true
+Title.Font = Enum.Font.GothamBold
+Title.Parent = MainFrame
+
+local StatusFrame = Instance.new("Frame")
+StatusFrame.Size = UDim2.new(1, -20, 0, 160)
+StatusFrame.Position = UDim2.new(0, 10, 0, 50)
+StatusFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+StatusFrame.BackgroundTransparency = 0.3
+StatusFrame.Parent = MainFrame
+
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Size = UDim2.new(1, -10, 0, 30)
+StatusLabel.Position = UDim2.new(0, 5, 0, 5)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Text = "🔴 Đang chạy..."
+StatusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+StatusLabel.Font = Enum.Font.Gotham
+StatusLabel.TextSize = 14
+StatusLabel.Parent = StatusFrame
+
+local ActionLabel = Instance.new("TextLabel")
+ActionLabel.Size = UDim2.new(1, -10, 0, 30)
+ActionLabel.Position = UDim2.new(0, 5, 0, 40)
+ActionLabel.BackgroundTransparency = 1
+ActionLabel.Text = "⚡ Hành động: Idle"
+ActionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+ActionLabel.TextXAlignment = Enum.TextXAlignment.Left
+ActionLabel.Font = Enum.Font.Gotham
+ActionLabel.TextSize = 14
+ActionLabel.Parent = StatusFrame
+
+local LastActionLabel = Instance.new("TextLabel")
+LastActionLabel.Size = UDim2.new(1, -10, 0, 30)
+LastActionLabel.Position = UDim2.new(0, 5, 0, 75)
+LastActionLabel.BackgroundTransparency = 1
+LastActionLabel.Text = "📦 Lần cuối: Chưa có"
+LastActionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+LastActionLabel.TextXAlignment = Enum.TextXAlignment.Left
+LastActionLabel.Font = Enum.Font.Gotham
+LastActionLabel.TextSize = 14
+LastActionLabel.Parent = StatusFrame
+
+local HarvestCountLabel = Instance.new("TextLabel")
+HarvestCountLabel.Size = UDim2.new(1, -10, 0, 30)
+HarvestCountLabel.Position = UDim2.new(0, 5, 0, 110)
+HarvestCountLabel.BackgroundTransparency = 1
+HarvestCountLabel.Text = "🍎 Thu hoạch: 0"
+HarvestCountLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+HarvestCountLabel.TextXAlignment = Enum.TextXAlignment.Left
+HarvestCountLabel.Font = Enum.Font.Gotham
+HarvestCountLabel.TextSize = 14
+HarvestCountLabel.Parent = StatusFrame
+
+-- Nút kéo GUI
+local function MakeDraggable(frame)
+    local dragging = false
+    local dragStart
+    local startPos
+    
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+        end
+    end)
+    
+    frame.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+MakeDraggable(MainFrame)
+
+-- ========== CẬP NHẬT GUI ==========
+task.spawn(function()
+    while IsFarming do
+        task.wait(0.3)
+        ActionLabel.Text = "⚡ Hành động: " .. CurrentAction
+        LastActionLabel.Text = "📦 Lần cuối: " .. LastAction
+        HarvestCountLabel.Text = "🍎 Thu hoạch: " .. TotalHarvested .. " | Mua hạt: " .. TotalSeedsBought
+    end
+end)
+
+-- ========== KHỞI CHẠY ==========
+print("🚀 Đang khởi chạy Auto Farm...")
+
+-- Teleport và lock
+TeleportToGardenCenter()
+task.wait(1)
+LockPlayerPosition()
+
+-- Vòng lặp chính
+task.spawn(function()
+    while IsFarming do
+        AutoHarvest()
+        task.wait(Config.HarvestDelay)
+    end
+end)
+
+task.spawn(function()
+    while IsFarming do
+        AutoPlant()
+        task.wait(Config.PlantDelay)
+    end
+end)
+
+task.spawn(function()
+    while IsFarming do
+        AutoSell()
+        task.wait(Config.SellDelay)
+    end
+end)
+
+task.spawn(function()
+    while IsFarming do
+        AutoBuySeed()
+        task.wait(Config.BuySeedDelay)
+    end
+end)
+
+print("✅ Auto Farm đã chạy! GUI ở góc trái màn hình.")
