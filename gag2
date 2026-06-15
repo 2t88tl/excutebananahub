@@ -734,8 +734,6 @@ task.spawn(function()
     end
 end)
 
--- Bật FPS Boost
-FPSBoost()
 
 -- ========== KẾT THÚC ==========
 print("✅ ĐÃ BẬT TOÀN BỘ FEATURE!")
