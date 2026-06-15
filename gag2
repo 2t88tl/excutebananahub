@@ -396,3 +396,407 @@ task.spawn(function()
 end)
 
 print("✅ Auto Farm đã chạy! GUI ở góc trái màn hình.")
+
+-- ========== PHẦN 2: THÊM FEATURE NÂNG CAO ==========
+-- Ghép phần này vào dưới phần 1, trước dòng print cuối cùng
+
+-- ========== BIẾN COOLDOWN ==========
+local lastSprinklerTime = 0
+local lastWateringTime = 0
+local lastShovelTime = 0
+local lastExpandCheck = 0
+local lastPetBuyTime = 0
+local lastPetSlotCheck = 0
+
+-- ========== TÌM THÊM REMOTE ==========
+local GearRemote = FindRemote("BuyGear") or FindRemote("PurchaseGear")
+local ShovelRemote = FindRemote("ShovelPlant") or FindRemote("RemovePlant")
+local ExpandRemote = FindRemote("ExpandGarden") or FindRemote("BuyExpansion")
+local PetBuyRemote = FindRemote("TamePet") or FindRemote("BuyPet")
+local PetEquipRemote = FindRemote("EquipPet")
+local PetSlotRemote = FindRemote("BuyPetSlot")
+local OpenPackRemote = FindRemote("OpenPack") or FindRemote("OpenCrate")
+
+-- ========== 1. AUTO GEAR (Sprinkler + Watering Can) ==========
+local function GetTopPlants(n)
+    local plants = {}
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and (obj.Name:find("Plant") or obj:FindFirstChild("IsPlant")) then
+            local value = 0
+            local val = obj:FindFirstChild("SellValue") or obj:FindFirstChild("Value")
+            if val then value = tonumber(val.Value) or 0 end
+            table.insert(plants, {obj = obj, value = value})
+        end
+    end
+    table.sort(plants, function(a, b) return a.value > b.value end)
+    local top = {}
+    for i = 1, math.min(n, #plants) do
+        table.insert(top, plants[i].obj)
+    end
+    return top
+end
+
+local function AutoUseGear()
+    local now = tick()
+    
+    -- Sprinkler (30s cooldown)
+    if now - lastSprinklerTime >= 30 then
+        local topPlants = GetTopPlants(1)
+        if #topPlants > 0 then
+            local sprinkler = LocalPlayer.Backpack:FindFirstChild("Sprinkler") or LocalPlayer.Character:FindFirstChild("Sprinkler")
+            if sprinkler then
+                sprinkler.Parent = LocalPlayer.Character
+                task.wait(0.1)
+                local useRemote = FindRemote("UseGear")
+                if useRemote then
+                    useRemote:FireServer(sprinkler, topPlants[1].Position)
+                    lastSprinklerTime = now
+                    CurrentAction = "Using Sprinkler"
+                    LastAction = "Placed sprinkler on top plant"
+                end
+            end
+        end
+    end
+    
+    -- Watering Can (5s cooldown, top 5 plants)
+    if now - lastWateringTime >= 5 then
+        local topPlants = GetTopPlants(5)
+        local wateringCan = LocalPlayer.Backpack:FindFirstChild("WateringCan") or LocalPlayer.Character:FindFirstChild("WateringCan")
+        if wateringCan and #topPlants > 0 then
+            wateringCan.Parent = LocalPlayer.Character
+            task.wait(0.1)
+            local useRemote = FindRemote("UseGear")
+            for _, plant in pairs(topPlants) do
+                if useRemote then
+                    useRemote:FireServer(wateringCan, plant.Position)
+                    task.wait(0.1)
+                end
+            end
+            lastWateringTime = now
+            CurrentAction = "Watering"
+            LastAction = "Watered " .. #topPlants .. " plants"
+        end
+    end
+end
+
+-- ========== 2. AUTO SHOVEL WEAK PLANTS ==========
+local function GetBestSeedValue()
+    local bestValue = 0
+    for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
+        if item:IsA("Tool") and (item.Name:find("Seed") or item:FindFirstChild("IsSeed")) then
+            local val = item:FindFirstChild("SellValue") or item:FindFirstChild("Price")
+            if val and tonumber(val.Value) then
+                bestValue = math.max(bestValue, tonumber(val.Value))
+            end
+        end
+    end
+    return bestValue
+end
+
+local function AutoShovelWeakPlants()
+    local now = tick()
+    if now - lastShovelTime < 3 then return end
+    
+    local bestSeedValue = GetBestSeedValue()
+    if bestSeedValue == 0 then return end
+    
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and (obj.Name:find("Plant") or obj:FindFirstChild("IsPlant")) then
+            local plantValue = 0
+            local val = obj:FindFirstChild("SellValue") or obj:FindFirstChild("Value")
+            if val then plantValue = tonumber(val.Value) or 0 end
+            
+            if plantValue < bestSeedValue * 0.5 then
+                if ShovelRemote then
+                    ShovelRemote:FireServer(obj)
+                    lastShovelTime = now
+                    CurrentAction = "Shoveling weak plant"
+                    LastAction = "Shoveled plant (value " .. plantValue .. " < 50% of best seed)"
+                    break
+                end
+            end
+        end
+    end
+end
+
+-- ========== 3. AUTO EXPAND GARDEN ==========
+local function GetCurrentMoney()
+    -- Tìm money value
+    local money = LocalPlayer.leaderstats:FindFirstChild("Sheckles") or LocalPlayer.leaderstats:FindFirstChild("Money")
+    if money then return money.Value end
+    return 0
+end
+
+local function AutoExpandGarden()
+    local now = tick()
+    if now - lastExpandCheck < 10 then return end
+    lastExpandCheck = now
+    
+    local money = GetCurrentMoney()
+    local expandPrice = nil
+    
+    -- Tìm giá mở rộng tiếp theo
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj.Name:find("Expand") or obj.Name:find("Expansion") then
+            local price = obj:FindFirstChild("Price") or obj:FindFirstChild("Cost")
+            if price and tonumber(price.Value) then
+                if money >= tonumber(price.Value) then
+                    expandPrice = tonumber(price.Value)
+                    break
+                end
+            end
+        end
+    end
+    
+    if expandPrice and ExpandRemote then
+        ExpandRemote:FireServer(expandPrice)
+        CurrentAction = "Expanding garden"
+        LastAction = "Bought expansion for " .. expandPrice
+    end
+end
+
+-- ========== 4. AUTO EVENTS (Rainbow/Gold Seed, SeedPack) ==========
+local collectedEvents = {} -- để tránh spam collect
+
+local function AutoCollectEvents()
+    local eventItems = {"RainbowSeed", "GoldSeed", "SeedPack", "MythicSeed"}
+    
+    for _, itemName in pairs(eventItems) do
+        local items = workspace:GetDescendants()
+        for _, item in pairs(items) do
+            if item.Name == itemName and item:IsA("BasePart") and not collectedEvents[item] then
+                -- Tìm prompt để collect
+                local prompt = item:FindFirstChild("ProximityPrompt") or item.Parent:FindFirstChild("ProximityPrompt")
+                if prompt and prompt:IsA("ProximityPrompt") then
+                    pcall(function()
+                        prompt:PromptButtonHoldBegan(false)
+                        task.wait(0.1)
+                        prompt:PromptButtonHoldEnded()
+                        collectedEvents[item] = true
+                        CurrentAction = "Collecting event"
+                        LastAction = "Collected " .. itemName
+                    end)
+                end
+            end
+        end
+    end
+end
+
+-- Watcher cho event spawn mới
+workspace.DescendantAdded:Connect(function(desc)
+    task.wait(0.5)
+    AutoCollectEvents()
+end)
+
+-- ========== 5. AUTO OPEN PACKS ==========
+local function AutoOpenPacks()
+    local packNames = {"SeedPack", "Egg", "Crate", "MysteryBox"}
+    
+    for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
+        for _, packName in pairs(packNames) do
+            if item.Name:find(packName) then
+                if OpenPackRemote then
+                    OpenPackRemote:FireServer(item)
+                    CurrentAction = "Opening pack"
+                    LastAction = "Opened " .. item.Name
+                    task.wait(0.5)
+                end
+            end
+        end
+    end
+end
+
+-- ========== 6. AUTO PETS ==========
+local function GetPetPrice(pet)
+    local price = pet:FindFirstChild("BasePrice") or pet:FindFirstChild("Price") or pet:FindFirstChild("Cost")
+    if price then return tonumber(price.Value) or 999999 else return 999999 end
+end
+
+local function AutoBuyPets()
+    local now = tick()
+    if now - lastPetBuyTime < 5 then return end
+    
+    local money = GetCurrentMoney()
+    local wildPets = {}
+    
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj.Name:find("Pet") or obj.Name:find("Animal") then
+            if obj:IsA("Model") or obj:IsA("BasePart") then
+                local price = GetPetPrice(obj)
+                if price <= money then
+                    table.insert(wildPets, {obj = obj, price = price})
+                end
+            end
+        end
+    end
+    
+    -- Sắp xếp theo giá rẻ nhất trước
+    table.sort(wildPets, function(a, b) return a.price < b.price end)
+    
+    if #wildPets > 0 and PetBuyRemote then
+        PetBuyRemote:FireServer(wildPets[1].obj)
+        lastPetBuyTime = now
+        CurrentAction = "Buying pet"
+        LastAction = "Tamed pet (price: " .. wildPets[1].price .. ")"
+    end
+end
+
+local function AutoEquipPets()
+    local pets = {}
+    for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
+        if item:IsA("Tool") and (item.Name:find("Pet") or item:FindFirstChild("IsPet")) then
+            local price = GetPetPrice(item)
+            table.insert(pets, {item = item, price = price})
+        end
+    end
+    
+    table.sort(pets, function(a, b) return a.price > b.price end)
+    
+    if #pets > 0 and PetEquipRemote then
+        PetEquipRemote:FireServer(pets[1].item)
+        CurrentAction = "Equipping best pet"
+        LastAction = "Equipped pet (price: " .. pets[1].price .. ")"
+    end
+end
+
+local function AutoBuyPetSlots()
+    local now = tick()
+    if now - lastPetSlotCheck < 30 then return end
+    lastPetSlotCheck = now
+    
+    local money = GetCurrentMoney()
+    local slotPrices = {200000, 1000000, 5000000}
+    
+    for _, price in pairs(slotPrices) do
+        if money >= price and PetSlotRemote then
+            PetSlotRemote:FireServer(price)
+            CurrentAction = "Buying pet slot"
+            LastAction = "Bought pet slot for " .. price
+            break
+        end
+    end
+end
+
+-- ========== 7. FPS BOOST (tắt effect) ==========
+local function FPSBoost()
+    -- Tắt ParticleEmitters, Trails, Beams, Smoke, Fire, Sparkles
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") then
+            obj.Enabled = false
+        end
+        if obj:IsA("Smoke") or obj:IsA("Fire") or obj:IsA("Sparkles") then
+            obj.Enabled = false
+        end
+        if obj:IsA("Decal") or obj:IsA("Texture") then
+            obj.Transparency = 1
+        end
+        if obj:IsA("PointLight") or obj:IsA("SpotLight") or obj:IsA("SurfaceLight") then
+            obj.Enabled = false
+        end
+    end
+    
+    -- Tắt sound
+    for _, sound in pairs(workspace:GetDescendants()) do
+        if sound:IsA("Sound") then
+            sound.Volume = 0
+            sound.Playing = false
+        end
+    end
+    
+    -- Tắt shadow, set quality thấp
+    game:GetService("Lighting").ShadowSoftness = 0
+    game:GetService("Lighting").Technology = Enum.Technology.Compatibility
+    settings().Rendering.QualityLevel = 1
+    
+    -- Ẩn người chơi khác (tùy chọn)
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            for _, part in pairs(player.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.Transparency = 1
+                elseif part:IsA("MeshPart") then
+                    part.Visible = false
+                end
+            end
+        end
+    end
+    
+    -- Watcher cho object mới
+    workspace.DescendantAdded:Connect(function(obj)
+        task.wait(0.1)
+        if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") then
+            obj.Enabled = false
+        elseif obj:IsA("Smoke") or obj:IsA("Fire") or obj:IsA("Sparkles") then
+            obj.Enabled = false
+        elseif obj:IsA("Sound") then
+            obj.Volume = 0
+            obj.Playing = false
+        end
+    end)
+    
+    print("✅ FPS Boost đã bật")
+end
+
+-- ========== THÊM VÒNG LẶP CHO PHẦN 2 ==========
+task.spawn(function()
+    while IsFarming do
+        AutoUseGear()
+        task.wait(1)
+    end
+end)
+
+task.spawn(function()
+    while IsFarming do
+        AutoShovelWeakPlants()
+        task.wait(2)
+    end
+end)
+
+task.spawn(function()
+    while IsFarming do
+        AutoExpandGarden()
+        task.wait(5)
+    end
+end)
+
+task.spawn(function()
+    while IsFarming do
+        AutoCollectEvents()
+        task.wait(0.5)
+    end
+end)
+
+task.spawn(function()
+    while IsFarming do
+        AutoOpenPacks()
+        task.wait(1)
+    end
+end)
+
+task.spawn(function()
+    while IsFarming do
+        AutoBuyPets()
+        task.wait(3)
+    end
+end)
+
+task.spawn(function()
+    while IsFarming do
+        AutoEquipPets()
+        task.wait(5)
+    end
+end)
+
+task.spawn(function()
+    while IsFarming do
+        AutoBuyPetSlots()
+        task.wait(10)
+    end
+end)
+
+-- Bật FPS Boost
+FPSBoost()
+
+-- ========== KẾT THÚC ==========
+print("✅ ĐÃ BẬT TOÀN BỘ FEATURE!")
+print("📋 Danh sách: Harvest, Plant, Sell, Buy Seed, Gear, Shovel, Expand, Events, Packs, Pets, FPS Boost")
