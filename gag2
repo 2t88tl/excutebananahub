@@ -52,7 +52,7 @@ local function AutoHarvest()
     if now - lastHarvestScan > 2 then
         cachedHarvestPrompts = {}
         for _, prompt in pairs(workspace:GetDescendants()) do
-            if prompt:IsA("ProximityPrompt") and (prompt.Name:find("Harvest") or prompt.Name:find("Collect")) then
+            if prompt:IsA("ProximityPrompt") then
                 local sellValue = 0
                 local parent = prompt.Parent
                 if parent then
@@ -146,7 +146,7 @@ end
 
 -- ========== AUTO BUY SEED ==========
 local function AutoBuySeed()
-    local seedShop = workspace:FindFirstChild("SeedShop") or workspace:FindFirstChild("Shop")
+    local seedShop = workspace:FindFirstChild("Shop") or workspace:FindFirstChild("Market") or workspace:FindFirstChild("SeedShop")
     if not seedShop then return end
     
     local seedPriority = {"CarrotSeed", "PotatoSeed", "TomatoSeed", "PumpkinSeed", "MelonSeed", "WatermelonSeed"}
