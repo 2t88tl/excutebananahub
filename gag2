@@ -144,21 +144,103 @@ local function AutoSell()
     end
 end
 
--- ========== AUTO BUY SEED ==========
+-- ========== AUTO BUY SEED (teleport + nói chuyện với NPC) ==========
+local function TeleportToNPC(npc)
+    if npc and npc:FindFirstChild("HumanoidRootPart") then
+        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = npc.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+            task.wait(0.5)
+            return true
+        end
+    end
+    return false
+end
+
+local function InteractWithNPC(npc)
+    -- Tìm ProximityPrompt trên NPC để nói chuyện
+    local prompt = npc:FindFirstChild("ProximityPrompt") or npc:FindFirstChild("TalkPrompt")
+    if prompt and prompt:IsA("ProximityPrompt") then
+        pcall(function()
+            prompt:PromptButtonHoldBegan(false)
+            task.wait(0.3)
+            prompt:PromptButtonHoldEnded()
+        end)
+        task.wait(0.5)
+        return true
+    end
+    return false
+end
+
 local function AutoBuySeed()
-    local seedShop = workspace:FindFirstChild("Shop") or workspace:FindFirstChild("Market") or workspace:FindFirstChild("SeedShop")
-    if not seedShop then return end
+    -- Tìm NPC bán seed (thử các tên thường dùng trong GAG 2)
+    local seedNPC = workspace:FindFirstChild("SeedSeller") 
+        or workspace:FindFirstChild("Merchant") 
+        or workspace:FindFirstChild("ShopNPC")
+        or workspace:FindFirstChild("Gardener")
     
-    local seedPriority = {"CarrotSeed", "PotatoSeed", "TomatoSeed", "PumpkinSeed", "MelonSeed", "WatermelonSeed"}
+    if not seedNPC then
+        -- Nếu không tìm thấy NPC, thử tìm shop trực tiếp
+        local seedShop = workspace:FindFirstChild("SeedShop") or workspace:FindFirstChild("Shop")
+        if seedShop then
+            -- Mua trực tiếp từ shop (không cần NPC)
+            local seedPriority = {"CarrotSeed", "PotatoSeed", "TomatoSeed", "PumpkinSeed", "MelonSeed"}
+            for _, seedName in pairs(seedPriority) do
+                local seed = seedShop:FindFirstChild(seedName)
+                if seed and seed:IsA("Tool") and BuyRemote then
+                    pcall(function() BuyRemote:FireServer(seed) end)
+                    TotalSeedsBought = TotalSeedsBought + 1
+                    CurrentAction = "Buying seed"
+                    LastAction = "Bought " .. seedName
+                    return
+                end
+            end
+        end
+        return
+    end
     
-    for _, seedName in pairs(seedPriority) do
-        local seed = seedShop:FindFirstChild(seedName)
-        if seed and seed:IsA("Tool") and BuyRemote then
-            pcall(function() BuyRemote:FireServer(seed) end)
-            TotalSeedsBought = TotalSeedsBought + 1
-            CurrentAction = "Buying seed"
-            LastAction = "Bought " .. seedName
-            break
+    -- Teleport tới NPC
+    local success = TeleportToNPC(seedNPC)
+    if not success then return end
+    
+    -- Nói chuyện với NPC để mở shop
+    local talked = InteractWithNPC(seedNPC)
+    if not talked then return end
+    
+    -- Sau khi mở shop, tìm và mua seed
+    local shopUI = player.PlayerGui:FindFirstChild("Shop") or player.PlayerGui:FindFirstChild("Market")
+    if shopUI then
+        -- Nếu shop đã mở, tìm seed trong đó
+        local seedPriority = {"CarrotSeed", "PotatoSeed", "TomatoSeed", "PumpkinSeed", "MelonSeed"}
+        for _, seedName in pairs(seedPriority) do
+            local seedButton = shopUI:FindFirstChild(seedName) or shopUI:FindFirstChild(seedName:gsub("Seed", ""))
+            if seedButton then
+                -- Click vào seed để mua
+                local remote = FindRemote("PurchaseSeed") or FindRemote("BuyItem")
+                if remote then
+                    remote:FireServer(seedName)
+                    TotalSeedsBought = TotalSeedsBought + 1
+                    CurrentAction = "Buying seed"
+                    LastAction = "Bought " .. seedName
+                    break
+                end
+            end
+        end
+    else
+        -- Fallback: mua trực tiếp bằng remote
+        local seedShop = workspace:FindFirstChild("SeedShop")
+        if seedShop then
+            local seedPriority = {"CarrotSeed", "PotatoSeed", "TomatoSeed", "PumpkinSeed", "MelonSeed"}
+            for _, seedName in pairs(seedPriority) do
+                local seed = seedShop:FindFirstChild(seedName)
+                if seed and seed:IsA("Tool") and BuyRemote then
+                    pcall(function() BuyRemote:FireServer(seed) end)
+                    TotalSeedsBought = TotalSeedsBought + 1
+                    CurrentAction = "Buying seed"
+                    LastAction = "Bought " .. seedName
+                    break
+                end
+            end
         end
     end
 end
