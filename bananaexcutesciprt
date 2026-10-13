@@ -68,6 +68,58 @@ Config = {
 }
 return loadstring(game:HttpGet("https://banana-hub.xyz/loader/banana.lua"))()
     ]],
+    ["Kaitun Bounty"] = [=[
+repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+getgenv().Key = ""
+getgenv().config =  {
+    team = "Pirates", -- "Pirates" "Marines"
+    hpTimeout = 15,
+    targetTimeout = 20,
+    lowHealth = 4000,
+    safeHealth = 4500,
+    blackScreen = false,
+    useSkill = false, -- only x f gas fruit
+    equipPaleScarf = false,
+    webhookurl = "",
+    webhookEnable = false,
+    webhookSendMinutes = 5,
+    attackSpeed = 0.001,
+    mode = 1, -- 2 or 1 
+    sea = 3,
+    region = "Singapore",
+    trans = false, -- auto press V t rex 
+    bltween = true, -- bypass may thang di chuyen toc do cao lien tuc > 7s - kho gay dame 
+    bpsit = true, -- khong hunt may thang ngoi thuyen - kho gay dame 
+    autoEatFruit = false, 
+    autoEatFruitNames = "", -- T-Rex-T-Rex", "Gas-Gas", "Dragon-Dragon", "Kitsune-Kitsune", "Pain-Pain", "Blade-Blade"
+    boostfps = false,
+    autoV4 = false, 
+}
+loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/refs/heads/main/Bountynew.lua"))()
+    ]=],
+
+    ["Kaitun Dungeon"] = [=[
+repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+getgenv().Key = ""
+getgenv().__BANANA_SCRIPT_ROUTE = "kaitundungeon"
+Config = {
+    FarmRings = {""}, -- Might, Spirit, Steelheart, Arcanist, Outlaw, Blades
+    WhitelistRings = {}, -- Might, Spirit, Steelheart, Arcanist, Outlaw, Blades
+    WhitelistModifiers = {""},
+    -- Punchy, Brutal, Fruity, Overcharged, Precise, Deadeye,
+    -- Sharp, Executioner, Vampiric, Sanguine, Element Slayer,
+    -- Beast Hunter, Piercing, Ruthless, Beast Slayer
+    MinGradeToLock = 3,
+    MainAccount = "",
+    Alts = {},
+    Difficulty = "Normal",
+    AutoLoad = false,
+    AutoRollRing = false,
+    WebhookUrl = "",
+    WebhookInterval = 300, -- seconds
+}
+return loadstring(game:HttpGet("https://banana-hub.xyz/loader/banana.lua"))()
+    ]=],
 }
 
 -- =====================
@@ -457,7 +509,7 @@ local ICONS = {
     ["Banana Hub"]    = "🍌",
     ["Kaitun Banana"] = "🐱",
     ["Kaitun Bounty"] = "⚔️",
-    ["Kaitun BF 2"]   = "🔥",
+    ["Kaitun Dungeon"]   = "🔥",
 }
 
 local function makeScriptBtn(name, order)
@@ -570,10 +622,10 @@ local function makeScriptBtn(name, order)
     end)
 end
 
-makeScriptBtn("Banana Hub",    1)
-makeScriptBtn("Kaitun Banana", 2)
-makeScriptBtn("Kaitun Bounty", 3)
-makeScriptBtn("Kaitun BF 2",   4)
+makeScriptBtn("Banana Hub",     1)
+makeScriptBtn("Kaitun Banana",  2)
+makeScriptBtn("Kaitun Bounty",  3)
+makeScriptBtn("Kaitun Dungeon", 4)
 
 -- =====================
 -- MINI STATS LOOP
