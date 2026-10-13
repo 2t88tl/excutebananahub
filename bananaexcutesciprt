@@ -48,104 +48,25 @@ local SCRIPTS = {
         loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaHub.lua"))()
     ]],
     ["Kaitun Banana"] = [[
-        repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
-        getgenv().Key = "4b762e8f5b1a50786aee5b6e"
-        getgenv().SettingFarm = {
-            ["Hide UI"] = false,
-            ["Reset Teleport"] = {
-                ["Enabled"] = false,
-                ["Delay Reset"] = 3,
-                ["Item Dont Reset"] = {
-                    ["Fruit"] = {
-                        ["Enabled"] = true,
-                        ["All Fruit"] = true,
-                        ["Select Fruit"] = {
-                            ["Enabled"] = false,
-                            ["Fruit"] = {},
-                        },
-                    },
-                },
-            },
-            ["White Screen"] = false,
-            ["Lock Fps"] = {["Enabled"] = false, ["FPS"] = 20},
-            ["Get Items"] = {
-                ["Saber"] = true, ["Godhuman"] = true,
-                ["Skull Guitar"] = true, ["Mirror Fractal"] = true,
-                ["Cursed Dual Katana"] = true, ["Upgrade Race V2-V3"] = true,
-                ["Auto Pull Lever"] = true, ["Shark Anchor"] = true,
-            },
-            ["Get Rare Items"] = {
-                ["Rengoku"] = false, ["Dragon Trident"] = false,
-                ["Pole (1st Form)"] = false, ["Gravity Blade"] = false,
-            },
-            ["Farm Fragments"] = {["Enabled"] = false, ["Fragment"] = 50000},
-            ["Auto Chat"] = {["Enabled"] = false, ["Text"] = ""},
-            ["Auto Summon Rip Indra"] = true,
-            ["Select Hop"] = {
-                ["Hop Server If Have Player Near"] = false,
-                ["Hop Find Rip Indra Get Valkyrie Helm or Get Tushita"] = true,
-                ["Hop Find Dough King Get Mirror Fractal"] = false,
-                ["Hop Find Raids Castle [CDK]"] = true,
-                ["Hop Find Cake Queen [CDK]"] = true,
-                ["Hop Find Soul Reaper [CDK]"] = true,
-                ["Hop Find Darkbeard [SG]"] = true,
-                ["Hop Find Mirage [ Pull Lever ]"] = false,
-            },
-            ["Farm Mastery"] = {["Melee"] = false, ["Sword"] = false},
-            ["Buy Haki"] = {
-                ["Enhancement"] = true, ["Skyjump"] = true,
-                ["Flash Step"] = true, ["Observation"] = true,
-            },
-            ["Sniper Fruit Shop"] = {
-                ["Enabled"] = true,
-                ["Fruit"] = {"Leopard-Leopard","Kitsune-Kitsune","Dragon-Dragon","Yeti-Yeti","Gas-Gas"},
-            },
-            ["Lock Fruit"] = {},
-            ["Webhook"] = {
-                ["Enabled"] = true,
-                ["WebhookUrl"] = "https://discord.com/api/webhooks/1470620158518099990/L_u1KQfvo8eOZpmRNSyOFP9L1Q0zl-Kq1L8PlJsMFVfHjIfh6pyDM9OrHSNNehVgUgQd",
-            }
-        }
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
-    ]],
-    ["Kaitun Bounty"] = [[
-        repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
-        getgenv().Key = "4b762e8f5b1a50786aee5b6e"
-        getgenv().config = {
-            team = "Pirates",
-            hpTimeout = 15,
-            targetTimeout = 20,
-            lowHealth = 4000,
-            safeHealth = 4500,
-            blackScreen = false,
-            useSkill = false,
-            equipPaleScarf = false,
-            webhookurl = "https://discord.com/api/webhooks/1470620158518099990/L_u1KQfvo8eOZpmRNSyOFP9L1Q0zl-Kq1L8PlJsMFVfHjIfh6pyDM9OrHSNNehVgUgQd",
-            webhookEnable = true,
-            webhookSendMinutes = 5,
-            attackSpeed = 0.001,
-            mode = 1,
-            sea = 3,
-            region = "Singapore",
-            trans = false,
-            bltween = true,
-            bpsit = true,
-        }
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/refs/heads/main/Bountynew.lua"))()
-    ]],
-    ["Kaitun BF 2"] = [[
-        repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
-        getgenv().Key = "4b762e8f5b1a50786aee5b6e"
-        Config = {
-            Team = "Pirates",
-            HopWhenIdle = true,
-            FpsBoost = true,
-            BlockAcc = false,
-            BlackScreen = false,
-            CursedDualKatana = false,
-            SoulGuitar = false
-        }
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/tmuseAI/bnnc/refs/heads/main/gm.lua"))()
+repeat wait() until game:IsLoaded() and game.Players.LocalPlayer 
+getgenv().Key = "4b762e8f5b1a50786aee5b6e"
+getgenv().__BANANA_SCRIPT_ROUTE = "kaigod"
+Config = {
+    Team = "Pirates",
+    FastTween = true, -- low fps -> false plz
+    HopWhenIdle = true,
+    FpsBoost = true,
+    FpsCap = 25,
+    BlockAcc = true,
+    BlackScreen = false,
+    CursedDualKatana = false,
+    SoulGuitar = false,
+    FarmBoneForx2EXP = false,
+    WebhookEnabled = true,
+    WebhookUrl = "https://discord.com/api/webhooks/1470620158518099990/L_u1KQfvo8eOZpmRNSyOFP9L1Q0zl-Kq1L8PlJsMFVfHjIfh6pyDM9OrHSNNehVgUgQd",
+    WebhookIntervalMinutes = 5
+}
+return loadstring(game:HttpGet("https://banana-hub.xyz/loader/banana.lua"))()
     ]],
 }
 
