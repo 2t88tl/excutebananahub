@@ -70,7 +70,7 @@ return loadstring(game:HttpGet("https://banana-hub.xyz/loader/banana.lua"))()
     ]],
     ["Kaitun Bounty"] = [=[
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
-getgenv().Key = ""
+getgenv().Key = "4b762e8f5b1a50786aee5b6e"
 getgenv().config =  {
     team = "Pirates", -- "Pirates" "Marines"
     hpTimeout = 15,
@@ -100,7 +100,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitin
 
     ["Kaitun Dungeon"] = [=[
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
-getgenv().Key = ""
+getgenv().Key = "4b762e8f5b1a50786aee5b6e"
 getgenv().__BANANA_SCRIPT_ROUTE = "kaitundungeon"
 Config = {
     FarmRings = {""}, -- Might, Spirit, Steelheart, Arcanist, Outlaw, Blades
